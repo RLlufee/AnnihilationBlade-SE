@@ -13,6 +13,11 @@
     "attack_base": 50.0,
     "max_damage": 2000,
     "slash_art": "annihilationblade:spatial_fracture",
+    "special_effects": [
+      "annihilationblade:dankong",
+      "annihilationblade:world_rift",
+      "annihilationblade:terminus_echo"
+    ],
     "sword_type": [
       "bewitched"
     ],

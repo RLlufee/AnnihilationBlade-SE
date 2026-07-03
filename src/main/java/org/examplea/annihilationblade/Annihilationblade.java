@@ -6,6 +6,10 @@ import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -30,6 +34,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class Annihilationblade {
     public static final String MODID = "annihilationblade";
     public static final Logger LOGGER = LogUtils.getLogger();
+    private static final String[] GOD_SPECIAL_EFFECTS = {
+            "annihilationblade:dankong",
+            "annihilationblade:world_rift",
+            "annihilationblade:terminus_echo"
+    };
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -64,6 +73,7 @@ public class Annihilationblade {
         ModItems.ITEMS.register(modEventBus);
         ModSlashArts.register(modEventBus);
         ModComboStates.register(modEventBus);
+        ModSpecialEffects.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
@@ -106,6 +116,7 @@ public class Annihilationblade {
         stack.getOrCreateTag().putString("TextureName", "annihilationblade:model/blade");
         stack.getOrCreateTag().putString("SlashArts", "annihilationblade:spatial_fracture");
         stack.getOrCreateTag().putInt("SummonedSwordColor", 0xFFAA00FF);
+        applyGodSpecialEffects(stack);
 
         stack.enchant(Enchantments.SHARPNESS, 10);
         stack.enchant(Enchantments.FIRE_ASPECT, 10);
@@ -115,5 +126,29 @@ public class Annihilationblade {
 
         // 隐藏原版属性 (攻击力/速度)
         stack.getOrCreateTag().putInt("HideFlags", 2);
+    }
+
+    private static void applyGodSpecialEffects(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
+        CompoundTag bladeState = tag.getCompound("bladeState");
+        ListTag specialEffects = bladeState.getList("SpecialEffects", Tag.TAG_STRING);
+
+        for (String effect : GOD_SPECIAL_EFFECTS) {
+            if (!containsString(specialEffects, effect)) {
+                specialEffects.add(StringTag.valueOf(effect));
+            }
+        }
+
+        bladeState.put("SpecialEffects", specialEffects);
+        tag.put("bladeState", bladeState);
+    }
+
+    private static boolean containsString(ListTag list, String value) {
+        for (int i = 0; i < list.size(); i++) {
+            if (value.equals(list.getString(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

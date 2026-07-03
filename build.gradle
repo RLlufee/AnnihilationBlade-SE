@@ -7,7 +7,7 @@ plugins {
 
 // 修改这里
 group = 'org.examplea.annihilationblade'
-version = '1.2.0'
+version = '2.0'
 
 base {
 
@@ -70,6 +70,7 @@ dependencies {
 }
 
 tasks.named('processResources', ProcessResources).configure {
+    filteringCharset = 'UTF-8'
     var replaceProperties = [
             minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
             forge_version       : forge_version, forge_version_range: forge_version_range,

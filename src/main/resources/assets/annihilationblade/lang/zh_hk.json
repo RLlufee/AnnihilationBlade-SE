@@ -1,21 +1,25 @@
 {
-  "item.annihilationblade.annihilation_blade": "§5湮滅之刃·終焉",
-  "item.annihilationblade.annihilation_core": "§5湮滅核心",
-  "item.annihilationblade.annihilation_fragment": "§5湮滅碎片",
-  "item.annihilationblade.tab_title": "湮滅之刃",
+  "item.annihilationblade.annihilation_blade": "§5§l湮滅之刃§8·§d終焉",
+  "item.annihilationblade.annihilation_core": "§5湮滅核心§8·§d終焉之鑰",
+  "item.annihilationblade.annihilation_fragment": "§5湮滅碎片§8·§7星骸殘響",
+  "item.annihilationblade.tab_title": "§5湮滅之刃§8｜§d終焉權柄",
 
-  "slashblade.slash_art.annihilationblade.spatial_fracture": "§5空間破碎",
-  "annihilationblade.slash_arts.spatial_fracture": "§5空間破碎",
-  "annihilationblade.slash_art.spatial_fracture": "§5空間破碎",
-  "slash_art.annihilationblade.spatial_fracture": "§5空間破碎",
+  "slashblade.slash_art.annihilationblade.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
+  "annihilationblade.slash_arts.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
+  "annihilationblade.slash_art.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
+  "slash_art.annihilationblade.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
 
-  "item.annihilationblade.desc.line1": "「當群星歸於寂靜，只有此刃仍在長鳴。」",
-  "item.annihilationblade.desc.line2": "「它並非以凡鐵鍛造，而是因果與虛空凝結而成的權柄。」",
-  "item.annihilationblade.desc.line3": "「所斬的不只是肉體，而是維繫存在的法則。」",
-  "item.annihilationblade.desc.line4": "「握着它，就是握住萬物的終結。」",
+  "se.annihilationblade.dankong": "§d§l斷空§8·§5瞬獄終閃",
+  "se.annihilationblade.world_rift": "§5§l裂界§8·§d因果傷痕",
+  "se.annihilationblade.terminus_echo": "§6§l歸墟迴響§8·§e終焉餘律",
 
-  "item.annihilationblade.passive": "§6被動：絕對庇護 / 虛空飛行",
-  "item.annihilationblade.infinite_damage": "+∞ 攻擊傷害",
-  "item.annihilationblade.annihilation_core.tip": "右擊獲取武器",
-  "item.annihilationblade.annihilation_fragment.tip": "可用於合成湮滅核心"
+  "item.annihilationblade.desc.line1": "§8「§d群星歸寂之刻，此刃仍在虛空中低鳴。§8」",
+  "item.annihilationblade.desc.line2": "§8「§5它不斬血肉，只刪去存在被允許的理由。§8」",
+  "item.annihilationblade.desc.line3": "§8「§d斷空踏影，裂界封喉，歸墟餘響為萬物落款。§8」",
+  "item.annihilationblade.desc.line4": "§8「§6執此刃者，無需勝利；結局自會俯首。§8」",
+
+  "item.annihilationblade.passive": "§6§l權柄§8：§e絕對庇護 §7/ §b虛空飛行 §7/ §d終焉處決",
+  "item.annihilationblade.infinite_damage": "§d+∞ §5終焉攻擊傷害",
+  "item.annihilationblade.annihilation_core.tip": "§d右擊喚醒終焉之刃",
+  "item.annihilationblade.annihilation_fragment.tip": "§7九枚星骸碎片，可凝成§5湮滅核心"
 }

@@ -5,17 +5,17 @@ issueTrackerURL="https://github.com/"
 
 [[mods]]
 modId="annihilationblade"
-version="1.1.0"
-displayName="Annihilation Blade"
-authors="Setad"
+version="2.0"
+displayName="Annihilation Blade · Terminus"
+authors="青衣_璃"
 description='''
-§5The Ultimate Weapon.
-§7
-Adds the Annihilation Blade, a weapon of mass destruction capable of severing the laws of existence.
-Feature:
-- Absolute Kill (Creative Kill)
-- Absolute Defense
+§5Annihilation Blade · Terminus
+§7A forbidden SlashBlade forged from void, causality and the silence after all stars.
+§d
+Features:
 - Spatial Fracture SA
+- Severed Space / World Rift / Terminus Echo SE
+- Absolute execution, absolute aegis, void flight
 '''
 logoFile="icon.png"
 

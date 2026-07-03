@@ -1,0 +1,25 @@
+{
+  "item.annihilationblade.annihilation_blade": "§5§lAnnihilation Blade§8 · §dTerminus",
+  "item.annihilationblade.annihilation_core": "§5Annihilation Core§8 · §dKey of Terminus",
+  "item.annihilationblade.annihilation_fragment": "§5Annihilation Shard§8 · §7Starfall Remnant",
+  "item.annihilationblade.tab_title": "§5Annihilation Blade§8 | §dTerminus",
+
+  "slashblade.slash_art.annihilationblade.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",
+  "annihilationblade.slash_arts.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",
+  "annihilationblade.slash_art.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",
+  "slash_art.annihilationblade.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",
+
+  "se.annihilationblade.dankong": "§d§lSevered Space§8 · §5Blink Requiem",
+  "se.annihilationblade.world_rift": "§5§lWorld Rift§8 · §dCausality Scar",
+  "se.annihilationblade.terminus_echo": "§6§lTerminus Echo§8 · §eVoid Refrain",
+
+  "item.annihilationblade.desc.line1": "§8\"§dWhen the stars fall silent, this blade still hums in the void.§8\"",
+  "item.annihilationblade.desc.line2": "§8\"§5It does not cut flesh; it erases existence's permission to remain.§8\"",
+  "item.annihilationblade.desc.line3": "§8\"§dSevered space, wounded worlds, and the last refrain of the end.§8\"",
+  "item.annihilationblade.desc.line4": "§8\"§6The wielder needs no victory; the conclusion kneels first.§8\"",
+
+  "item.annihilationblade.passive": "§6§lAuthority§8: §eAbsolute Aegis §7/ §bVoid Flight §7/ §dTerminus Execution",
+  "item.annihilationblade.infinite_damage": "§d+∞ §5Terminus Attack Damage",
+  "item.annihilationblade.annihilation_core.tip": "§dRight-click to awaken the blade of terminus",
+  "item.annihilationblade.annihilation_fragment.tip": "§7Nine starfall remnants converge into the §5Annihilation Core"
+}
