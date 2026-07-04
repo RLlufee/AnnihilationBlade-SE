@@ -15,6 +15,12 @@ public class ModSpecialEffects {
             SPECIAL_EFFECTS.register("world_rift", org.examplea.annihilationblade.specialeffect.WorldRift::new);
     public static final RegistryObject<SpecialEffect> TERMINUS_ECHO =
             SPECIAL_EFFECTS.register("terminus_echo", org.examplea.annihilationblade.specialeffect.TerminusEcho::new);
+    public static final RegistryObject<SpecialEffect> VOID_DOMINION =
+            SPECIAL_EFFECTS.register("void_dominion", org.examplea.annihilationblade.specialeffect.VoidDominion::new);
+    public static final RegistryObject<SpecialEffect> CAUSALITY_COLLAPSE =
+            SPECIAL_EFFECTS.register("causality_collapse", org.examplea.annihilationblade.specialeffect.CausalityCollapse::new);
+    public static final RegistryObject<SpecialEffect> STARLESS_JUDGEMENT =
+            SPECIAL_EFFECTS.register("starless_judgement", org.examplea.annihilationblade.specialeffect.StarlessJudgement::new);
 
     public static void register(IEventBus eventBus) {
         SPECIAL_EFFECTS.register(eventBus);

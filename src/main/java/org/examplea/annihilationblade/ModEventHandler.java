@@ -3,10 +3,9 @@ package org.examplea.annihilationblade;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -115,6 +114,9 @@ public class ModEventHandler {
             if (shouldKill && !TerminusLogic.isMarkedForDeath(event.getEntity())) {
                 event.setAmount(10000.0f);
                 TerminusLogic.markForDeath(event.getEntity());
+                if (event.getEntity().level() instanceof ServerLevel level) {
+                    AnnihilationVisuals.spawnExecutionBurst(level, event.getEntity(), player.getRandom());
+                }
 
                 if (player.distanceTo(event.getEntity()) < 6.0f) {
                     event.getEntity().level().playSound(null, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),
@@ -152,15 +154,6 @@ public class ModEventHandler {
             if (player.getHealth() < player.getMaxHealth()) player.setHealth(player.getMaxHealth());
             player.getFoodData().setFoodLevel(20);
             player.getFoodData().setSaturation(20.0f);
-            player.removeAllEffects();
-
-            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 220, 0, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 220, 1, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 220, 4, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 220, 0, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 220, 2, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 220, 2, false, false));
-            player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 220, 4, false, false));
 
             if (!player.isCreative() && !player.isSpectator()) {
                 if (!player.getAbilities().mayfly) {

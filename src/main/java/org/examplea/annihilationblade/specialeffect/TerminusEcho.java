@@ -14,12 +14,16 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.examplea.annihilationblade.AnnihilationVisuals;
 import org.examplea.annihilationblade.Annihilationblade;
 import org.examplea.annihilationblade.ItemAnnihilationBlade;
 import org.examplea.annihilationblade.ModSpecialEffects;
 import org.examplea.annihilationblade.TerminusLogic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,11 +31,9 @@ import java.util.UUID;
 public class TerminusEcho extends SpecialEffect {
     private static final double RANGE = 36.0D;
     private static final double WIDTH = 4.4D;
-    private static final int COOLDOWN_TICKS = 22;
     private static final int ECHO_COUNT = 5;
     private static final int ECHO_INTERVAL = 3;
-    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
-    private static final Map<UUID, EchoSequence> ACTIVE = new HashMap<>();
+    private static final Map<UUID, List<EchoSequence>> ACTIVE = new HashMap<>();
 
     public TerminusEcho() {
         super(0, false, false);
@@ -44,18 +46,12 @@ public class TerminusEcho extends SpecialEffect {
 
         ISlashBladeState state = event.getSlashBladeState();
         if (!state.hasSpecialEffect(ModSpecialEffects.TERMINUS_ECHO.getId())) return;
-        if (ACTIVE.containsKey(player.getUUID())) return;
-
-        long gameTime = player.level().getGameTime();
-        long last = LAST_TRIGGER.getOrDefault(player.getUUID(), -COOLDOWN_TICKS * 2L);
-        if (gameTime - last < COOLDOWN_TICKS) return;
-        LAST_TRIGGER.put(player.getUUID(), gameTime);
 
         Vec3 start = player.getEyePosition().add(player.getLookAngle().normalize().scale(1.0D));
         Vec3 direction = player.getLookAngle().normalize();
         Vec3 right = rightOf(direction);
         EchoSequence sequence = new EchoSequence(start, direction, right);
-        ACTIVE.put(player.getUUID(), sequence);
+        ACTIVE.computeIfAbsent(player.getUUID(), ignored -> new ArrayList<>()).add(sequence);
         releaseEcho(player.serverLevel(), player, sequence, 0);
         sequence.nextWave = 1;
     }
@@ -65,19 +61,27 @@ public class TerminusEcho extends SpecialEffect {
         if (event.phase != TickEvent.Phase.END) return;
         if (!(event.player instanceof ServerPlayer player)) return;
 
-        EchoSequence sequence = ACTIVE.get(player.getUUID());
-        if (sequence == null) return;
+        List<EchoSequence> sequences = ACTIVE.get(player.getUUID());
+        if (sequences == null || sequences.isEmpty()) return;
 
-        sequence.age++;
-        if (sequence.age % ECHO_INTERVAL != 0) return;
+        Iterator<EchoSequence> iterator = sequences.iterator();
+        while (iterator.hasNext()) {
+            EchoSequence sequence = iterator.next();
+            sequence.age++;
+            if (sequence.age % ECHO_INTERVAL != 0) continue;
 
-        if (sequence.nextWave >= ECHO_COUNT) {
-            ACTIVE.remove(player.getUUID());
-            return;
+            if (sequence.nextWave >= ECHO_COUNT) {
+                iterator.remove();
+                continue;
+            }
+
+            releaseEcho(player.serverLevel(), player, sequence, sequence.nextWave);
+            sequence.nextWave++;
         }
 
-        releaseEcho(player.serverLevel(), player, sequence, sequence.nextWave);
-        sequence.nextWave++;
+        if (sequences.isEmpty()) {
+            ACTIVE.remove(player.getUUID());
+        }
     }
 
     private static void releaseEcho(ServerLevel level, ServerPlayer player, EchoSequence sequence, int wave) {
@@ -94,6 +98,7 @@ public class TerminusEcho extends SpecialEffect {
         spawnLine(level, start, end, wave % 2 == 0 ? ParticleTypes.REVERSE_PORTAL : ParticleTypes.PORTAL, 42, 0.08D);
         spawnSideCuts(level, sequence, start, range, wave);
         spawnEchoRings(level, sequence, start, range, wave);
+        AnnihilationVisuals.spawnEchoWave(level, start, sequence.direction, sequence.right, range, width, wave);
         strikeAlong(level, player, start, sequence.direction, range, width, wave);
     }
 
@@ -140,6 +145,7 @@ public class TerminusEcho extends SpecialEffect {
                     2 + wave, 0.35D, 0.35D, 0.35D, 0.0D);
             level.sendParticles(ParticleTypes.REVERSE_PORTAL, target.getX(), targetCenter.y, target.getZ(),
                     20 + wave * 6, 0.55D, 0.7D, 0.55D, 0.25D);
+            AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
             TerminusLogic.execute(target, player);
         }
     }

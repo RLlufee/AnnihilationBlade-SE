@@ -45,6 +45,7 @@ public final class SpatialFractureExecutor {
         Set<LivingEntity> targets = gatherTargets(level, player, center);
 
         playOpeningRupture(level, player, center);
+        AnnihilationVisuals.spawnOpeningHalo(level, center, FRACTURE_RADIUS);
         spawnFractureField(level, player, center);
         spawnBladeStorm(level, player, center);
         targets.forEach(target -> {
@@ -165,6 +166,8 @@ public final class SpatialFractureExecutor {
         spawnVerticalRing(level, center.add(0.0D, 1.5D, 0.0D), FRACTURE_RADIUS * 0.9D, ParticleTypes.ELECTRIC_SPARK, 96, false);
 
         RandomSource random = player.getRandom();
+        AnnihilationVisuals.spawnWorldRiftBloom(level, center.add(0.0D, 1.0D, 0.0D), FRACTURE_RADIUS * 0.58D);
+        AnnihilationVisuals.spawnFractureWeb(level, center, FRACTURE_RADIUS, random);
         for (int i = 0; i < 28; i++) {
             Vec3 end = center.add(randomUnit(random).scale(6.0D + random.nextDouble() * FRACTURE_RADIUS));
             spawnParticleLine(level, center, end, ParticleTypes.REVERSE_PORTAL, 18, 0.05D);
@@ -186,6 +189,9 @@ public final class SpatialFractureExecutor {
             Vec3 end = middle.add(direction.scale(length * 0.5D));
             spawnParticleLine(level, start, end, ParticleTypes.END_ROD, 24, 0.02D);
             spawnParticleLine(level, start, end, ParticleTypes.ELECTRIC_SPARK, 14, 0.04D);
+            if (i % 4 == 0) {
+                AnnihilationVisuals.spawnSlashBridge(level, start, end, 1.2D + random.nextDouble() * 0.8D, random);
+            }
             if (i % 3 == 0) {
                 spawnParticleLine(level, start, end, ParticleTypes.SWEEP_ATTACK, 6, 0.0D);
             }
@@ -201,6 +207,7 @@ public final class SpatialFractureExecutor {
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, target.getX(), target.getY() + 1.0D, target.getZ(), 45, 0.9D, 0.9D, 0.9D, 0.35D);
         spawnParticleLine(level, center.add(-2.5D, 1.8D, -2.5D), center.add(2.5D, -1.4D, 2.5D), ParticleTypes.END_ROD, 18, 0.0D);
         spawnParticleLine(level, center.add(2.5D, 1.8D, -2.5D), center.add(-2.5D, -1.4D, 2.5D), ParticleTypes.ELECTRIC_SPARK, 18, 0.0D);
+        AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
         AttackManager.doSlash(player, player.getRandom().nextInt(360), Vec3.ZERO, true, true, 9999.0F);
     }
 
@@ -211,6 +218,7 @@ public final class SpatialFractureExecutor {
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, Math.min(2.5F, volume), 1.7F);
         level.sendParticles(ParticleTypes.SONIC_BOOM, center.x, center.y + 1.0D, center.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         level.sendParticles(ParticleTypes.DRAGON_BREATH, center.x, center.y + 1.0D, center.z, 180, 5.0D, 2.0D, 5.0D, 0.25D);
+        AnnihilationVisuals.spawnCollapsePulse(level, center, FRACTURE_RADIUS, count);
     }
 
     private static void spawnRing(ServerLevel level, Vec3 center, double radius, ParticleOptions particle, int points) {

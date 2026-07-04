@@ -15,8 +15,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.examplea.annihilationblade.AnnihilationVisuals;
 import org.examplea.annihilationblade.Annihilationblade;
 import org.examplea.annihilationblade.ItemAnnihilationBlade;
 import org.examplea.annihilationblade.ModSpecialEffects;
@@ -30,10 +32,10 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = Annihilationblade.MODID)
 public class Dankong extends SpecialEffect {
-    private static final double RANGE = 20.0D;
-    private static final int MAX_TARGETS = 24;
-    private static final int STEP_INTERVAL = 4;
-    private static final int COOLDOWN_TICKS = 24;
+    private static final double RANGE = 72.0D;
+    private static final int MAX_TARGETS = 48;
+    private static final int STEP_INTERVAL = 2;
+    private static final int COOLDOWN_TICKS = 12;
     private static final Map<UUID, Sequence> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
 
@@ -45,13 +47,14 @@ public class Dankong extends SpecialEffect {
         return ACTIVE.containsKey(player.getUUID());
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onDoingSlash(SlashBladeEvent.DoSlashEvent event) {
         if (!(event.getUser() instanceof ServerPlayer player)) return;
         if (player.level().isClientSide()) return;
 
         ISlashBladeState state = event.getSlashBladeState();
         if (!state.hasSpecialEffect(ModSpecialEffects.DANKONG.getId())) return;
+        if (player.isShiftKeyDown()) return;
         if (ACTIVE.containsKey(player.getUUID())) return;
 
         long gameTime = player.level().getGameTime();
@@ -64,6 +67,7 @@ public class Dankong extends SpecialEffect {
 
         LAST_TRIGGER.put(player.getUUID(), gameTime);
         ACTIVE.put(player.getUUID(), new Sequence(origin, player.getYRot(), player.getXRot(), targets));
+        AnnihilationVisuals.spawnBlinkGate(player.serverLevel(), origin.add(0.0D, 1.0D, 0.0D), 2.0D);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.2F, 1.8F);
     }
@@ -94,6 +98,7 @@ public class Dankong extends SpecialEffect {
                 SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.PLAYERS, 1.4F, 0.6F);
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, sequence.origin.x, sequence.origin.y + 1.0D, sequence.origin.z,
                 90, 1.4D, 0.9D, 1.4D, 0.35D);
+        AnnihilationVisuals.spawnBlinkGate(level, sequence.origin.add(0.0D, 1.0D, 0.0D), 2.4D);
         ACTIVE.remove(player.getUUID());
     }
 
@@ -105,8 +110,8 @@ public class Dankong extends SpecialEffect {
                 entity -> canTarget(player, entity) && distanceToBoxSqr(origin, entity.getBoundingBox()) <= RANGE * RANGE
         );
         entities.sort((a, b) -> Double.compare(
-                distanceToBoxSqr(origin, a.getBoundingBox()),
-                distanceToBoxSqr(origin, b.getBoundingBox())
+                distanceToBoxSqr(origin, b.getBoundingBox()),
+                distanceToBoxSqr(origin, a.getBoundingBox())
         ));
 
         List<UUID> result = new ArrayList<>();
@@ -146,13 +151,16 @@ public class Dankong extends SpecialEffect {
         Vec3 attackPos = target.position().add(away.normalize().scale(1.8D)).add(0.0D, 0.15D, 0.0D);
         float yaw = yawToFace(attackPos, targetCenter);
         float pitch = pitchToFace(attackPos, targetCenter);
+        Vec3 travelStart = player.position().add(0.0D, player.getBbHeight() * 0.5D, 0.0D);
 
         player.teleportTo(level, attackPos.x, attackPos.y, attackPos.z, yaw, pitch);
         player.setDeltaMovement(Vec3.ZERO);
 
+        AnnihilationVisuals.spawnBlinkTrail(level, travelStart, targetCenter, player.getRandom());
         level.sendParticles(ParticleTypes.FLASH, targetCenter.x, targetCenter.y, targetCenter.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         level.sendParticles(ParticleTypes.END_ROD, targetCenter.x, targetCenter.y, targetCenter.z, 55, 0.8D, 0.8D, 0.8D, 0.12D);
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, targetCenter.x, targetCenter.y, targetCenter.z, 80, 1.2D, 1.0D, 1.2D, 0.45D);
+        AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 1.9F);
         AttackManager.doSlash(player, player.getRandom().nextInt(360), Vec3.ZERO, true, true, 9999.0F);

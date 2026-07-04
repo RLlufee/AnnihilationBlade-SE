@@ -1,0 +1,83 @@
+package org.examplea.annihilationblade.specialeffect;
+
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import org.examplea.annihilationblade.AnnihilationVisuals;
+import org.examplea.annihilationblade.Annihilationblade;
+import org.examplea.annihilationblade.ItemAnnihilationBlade;
+import org.examplea.annihilationblade.ModSpecialEffects;
+import org.examplea.annihilationblade.TerminusLogic;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+@Mod.EventBusSubscriber(modid = Annihilationblade.MODID)
+public class VoidDominion extends SpecialEffect {
+    private static final double RANGE = 26.0D;
+    private static final int MAX_TARGETS = 64;
+    private static final int COOLDOWN_TICKS = 70;
+    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
+
+    public VoidDominion() {
+        super(0, false, false);
+    }
+
+    @SubscribeEvent
+    public static void onDoingSlash(SlashBladeEvent.DoSlashEvent event) {
+        if (!(event.getUser() instanceof ServerPlayer player)) return;
+        if (Dankong.isActive(player)) return;
+
+        ISlashBladeState state = event.getSlashBladeState();
+        if (!state.hasSpecialEffect(ModSpecialEffects.VOID_DOMINION.getId())) return;
+
+        long gameTime = player.level().getGameTime();
+        long last = LAST_TRIGGER.getOrDefault(player.getUUID(), -COOLDOWN_TICKS * 2L);
+        if (gameTime - last < COOLDOWN_TICKS) return;
+        LAST_TRIGGER.put(player.getUUID(), gameTime);
+
+        ServerLevel level = player.serverLevel();
+        Vec3 direction = player.getLookAngle().normalize();
+        Vec3 center = player.getEyePosition().add(direction.scale(10.0D));
+
+        AnnihilationVisuals.spawnOpeningHalo(level, center, RANGE * 0.62D);
+        AnnihilationVisuals.spawnWorldRiftBloom(level, center, RANGE * 0.42D);
+        AnnihilationVisuals.spawnFractureWeb(level, center, RANGE * 0.78D, player.getRandom());
+
+        int count = 0;
+        AABB area = new AABB(center, center).inflate(RANGE);
+        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, area, entity -> canTarget(player, entity))) {
+            if (count >= MAX_TARGETS) break;
+
+            Vec3 targetCenter = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+            if (targetCenter.distanceToSqr(center) > RANGE * RANGE) continue;
+
+            AnnihilationVisuals.spawnSlashBridge(level, center, targetCenter, 1.4D, player.getRandom());
+            AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
+            TerminusLogic.execute(target, player);
+            count++;
+        }
+
+        AnnihilationVisuals.spawnCollapsePulse(level, center, RANGE * 0.72D, count);
+    }
+
+    private static boolean canTarget(Player player, LivingEntity candidate) {
+        if (candidate == player) return false;
+        if (!candidate.isAlive()) return false;
+        if (candidate.isAlliedTo(player)) return false;
+        if (candidate instanceof Player other) {
+            if (other.isCreative() || other.isSpectator()) return false;
+            return !(other.getMainHandItem().getItem() instanceof ItemAnnihilationBlade);
+        }
+        return true;
+    }
+}

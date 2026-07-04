@@ -7,7 +7,7 @@ plugins {
 
 // 修改这里
 group = 'org.examplea.annihilationblade'
-version = '2.0'
+version = '2.1'
 
 base {
 

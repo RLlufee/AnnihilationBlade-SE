@@ -3,8 +3,8 @@ Specification-Title: annihilationblade
 Specification-Vendor: éè¡£_ç
 Specification-Version: 1
 Implementation-Title: annihilationblade
-Implementation-Version: 2.0
+Implementation-Version: 2.1
 Implementation-Vendor: éè¡£_ç
-Implementation-Timestamp: 2026-07-03T17:08:53+0800
+Implementation-Timestamp: 2026-07-04T22:43:13+0800
 MixinConfigs: annihilationblade.mixins.json
 

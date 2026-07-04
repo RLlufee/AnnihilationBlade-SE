@@ -37,7 +37,10 @@ public class Annihilationblade {
     private static final String[] GOD_SPECIAL_EFFECTS = {
             "annihilationblade:dankong",
             "annihilationblade:world_rift",
-            "annihilationblade:terminus_echo"
+            "annihilationblade:terminus_echo",
+            "annihilationblade:void_dominion",
+            "annihilationblade:causality_collapse",
+            "annihilationblade:starless_judgement"
     };
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
@@ -123,6 +126,11 @@ public class Annihilationblade {
         stack.enchant(Enchantments.SMITE, 10);
         stack.enchant(Enchantments.BANE_OF_ARTHROPODS, 10);
         stack.enchant(Enchantments.MOB_LOOTING, 10);
+        stack.enchant(Enchantments.SWEEPING_EDGE, 10);
+        stack.enchant(Enchantments.KNOCKBACK, 10);
+        stack.enchant(Enchantments.UNBREAKING, 10);
+        stack.enchant(Enchantments.MENDING, 10);
+        stack.enchant(Enchantments.THORNS, 10);
 
         // 隐藏原版属性 (攻击力/速度)
         stack.getOrCreateTag().putInt("HideFlags", 2);

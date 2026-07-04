@@ -4,10 +4,15 @@
   "texture_name": "annihilationblade:model/blade.png",
   "enchantments": {
     "minecraft:sharpness": 10,
-    "minecraft:fire_aspect": 5,
+    "minecraft:fire_aspect": 10,
     "minecraft:smite": 10,
     "minecraft:bane_of_arthropods": 10,
-    "minecraft:looting": 10
+    "minecraft:looting": 10,
+    "minecraft:sweeping": 10,
+    "minecraft:knockback": 10,
+    "minecraft:unbreaking": 10,
+    "minecraft:mending": 10,
+    "minecraft:thorns": 10
   },
   "properties": {
     "attack_base": 50.0,
@@ -16,7 +21,10 @@
     "special_effects": [
       "annihilationblade:dankong",
       "annihilationblade:world_rift",
-      "annihilationblade:terminus_echo"
+      "annihilationblade:terminus_echo",
+      "annihilationblade:void_dominion",
+      "annihilationblade:causality_collapse",
+      "annihilationblade:starless_judgement"
     ],
     "sword_type": [
       "bewitched"

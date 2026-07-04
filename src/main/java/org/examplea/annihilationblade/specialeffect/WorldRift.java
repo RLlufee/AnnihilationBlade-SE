@@ -15,6 +15,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.examplea.annihilationblade.AnnihilationVisuals;
 import org.examplea.annihilationblade.Annihilationblade;
 import org.examplea.annihilationblade.ModSpecialEffects;
 import org.examplea.annihilationblade.TerminusLogic;
@@ -44,6 +45,7 @@ public class WorldRift extends SpecialEffect {
         level.sendParticles(ParticleTypes.PORTAL, center.x, center.y, center.z, 160, RADIUS * 0.65D, 2.0D, RADIUS * 0.65D, 0.8D);
         spawnRing(level, center, RADIUS, ParticleTypes.REVERSE_PORTAL, 72);
         spawnRing(level, center.add(0.0D, 1.4D, 0.0D), RADIUS * 0.55D, ParticleTypes.END_ROD, 56);
+        AnnihilationVisuals.spawnWorldRiftBloom(level, center, RADIUS);
 
         AABB area = new AABB(center, center).inflate(RADIUS);
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, area, e -> canTarget(player, e))) {
@@ -52,6 +54,7 @@ public class WorldRift extends SpecialEffect {
             spawnLine(level, center, entityCenter, ParticleTypes.ELECTRIC_SPARK, 12);
             level.sendParticles(ParticleTypes.END_ROD, entityCenter.x, entityCenter.y, entityCenter.z,
                     25, 0.5D, 0.7D, 0.5D, 0.08D);
+            AnnihilationVisuals.spawnExecutionBurst(level, entity, player.getRandom());
             TerminusLogic.execute(entity, player);
         }
     }
