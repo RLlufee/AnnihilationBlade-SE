@@ -11,11 +11,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.examplea.annihilationblade.AnnihilationVisuals;
 import org.examplea.annihilationblade.Annihilationblade;
-import org.examplea.annihilationblade.ItemAnnihilationBlade;
-import org.examplea.annihilationblade.ModSpecialEffects;
-import org.examplea.annihilationblade.TerminusLogic;
+import org.examplea.annihilationblade.item.ItemAnnihilationBlade;
+import org.examplea.annihilationblade.logic.TerminusLogic;
+import org.examplea.annihilationblade.registry.ModSpecialEffects;
+import org.examplea.annihilationblade.visual.AnnihilationVisuals;
 
 import java.util.HashMap;
 import java.util.Map;

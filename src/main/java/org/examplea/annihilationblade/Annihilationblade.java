@@ -13,27 +13,33 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import org.examplea.annihilationblade.registry.ModComboStates;
+import org.examplea.annihilationblade.registry.ModItems;
+import org.examplea.annihilationblade.registry.ModSlashArts;
+import org.examplea.annihilationblade.registry.ModSpecialEffects;
 import org.slf4j.Logger;
 
-import java.util.Iterator;
 import java.util.Map;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @Mod(Annihilationblade.MODID)
 public class Annihilationblade {
     public static final String MODID = "annihilationblade";
     public static final Logger LOGGER = LogUtils.getLogger();
+
+    private static final int INITIAL_KILL_COUNT = 0;
+    private static final int INITIAL_PROUD_SOUL = 0;
+    private static final String GROWTH_MIGRATION_KEY = "AnnihilationBladeGrowthMigrated";
+
     private static final String[] GOD_SPECIAL_EFFECTS = {
             "annihilationblade:dankong",
             "annihilationblade:world_rift",
@@ -43,63 +49,48 @@ public class Annihilationblade {
             "annihilationblade:starless_judgement"
     };
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // 注册自定义标签页
     public static final RegistryObject<CreativeModeTab> SLASHBLADE_TAB = CREATIVE_MODE_TABS.register("slashblade_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("item.annihilationblade.tab_title"))
                     .icon(() -> {
                         ItemStack stack = new ItemStack(SBItems.slashblade);
-                        stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
-                            s.setModel(new ResourceLocation(MODID, "model/blade.obj"));
-                            s.setTexture(new ResourceLocation(MODID, "model/blade.png"));
+                        stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+                            state.setModel(ResourceLocation.fromNamespaceAndPath(MODID, "model/blade.obj"));
+                            state.setTexture(ResourceLocation.fromNamespaceAndPath(MODID, "model/blade.png"));
                         });
                         return stack;
                     })
                     .displayItems((parameters, output) -> {
-                        // === 修复：自定义标签页 ===
-                        // 从管理器获取有模型的刀 -> 强化 -> 放入
                         ItemStack godSword = getGodBladeFromManager();
                         if (!godSword.isEmpty()) {
                             output.accept(godSword);
                         }
-
-                        // 添加湮灭碎片和核心到创造标签页
                         output.accept(new ItemStack(ModItems.ANNIHILATION_FRAGMENT.get()));
                         output.accept(new ItemStack(ModItems.ANNIHILATION_CORE.get()));
                     })
                     .build());
 
-    public Annihilationblade() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public Annihilationblade(FMLJavaModLoadingContext context) {
+        IEventBus modEventBus = context.getModEventBus();
         ModItems.ITEMS.register(modEventBus);
         ModSlashArts.register(modEventBus);
         ModComboStates.register(modEventBus);
         ModSpecialEffects.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
-        modEventBus.addListener(this::addCreative);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    // === 修复：其他标签页 (战斗/拔刀剑) ===
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        // 用户要求删除手动添加的部分，依靠 SlashBlade 自动扫描
-        // 我们只负责在自定义标签页添加
-    }
-
-    // === 核心方法：获取并强化妖刀 ===
-    // 这个方法会去 BladeModelManager 里找那把由 JSON 加载成功的刀
-    // 这样就能保证有模型，然后再给它注入数据
     private static ItemStack getGodBladeFromManager() {
         if (Minecraft.getInstance().getConnection() != null) {
             var registry = BladeModelManager.getClientSlashBladeRegistry();
             for (var entry : registry.entrySet()) {
-                // 找到属于我们 MOD 的刀
                 if (entry.getKey() != null && entry.getKey().location().getNamespace().equals(MODID)) {
-                    ItemStack stack = entry.getValue().getBlade().copy(); // 复制一份，别改坏了原始缓存
-                    applyGodStats(stack); // 强化
+                    ItemStack stack = entry.getValue().getBlade().copy();
+                    applyGodStats(stack);
                     return stack;
                 }
             }
@@ -107,33 +98,81 @@ public class Annihilationblade {
         return ItemStack.EMPTY;
     }
 
-    // 属性注入
     public static void applyGodStats(ItemStack stack) {
-        stack.getOrCreateTag().putBoolean("IsAnnihilationBlade", true);
-        stack.getOrCreateTag().putInt("KillCount", 10000);
-        stack.getOrCreateTag().putInt("ProudSoul", 100000);
-        stack.getOrCreateTag().putInt("RepairCost", 1);
+        ensureGodStats(stack);
+        resetGrowthStats(stack);
+    }
 
-        // 这里的路径其实主要靠 JSON 加载，但 NBT 补一下也没坏处
-        stack.getOrCreateTag().putString("ModelName", "annihilationblade:model/blade");
-        stack.getOrCreateTag().putString("TextureName", "annihilationblade:model/blade");
-        stack.getOrCreateTag().putString("SlashArts", "annihilationblade:spatial_fracture");
-        stack.getOrCreateTag().putInt("SummonedSwordColor", 0xFFAA00FF);
+    public static void ensureGodStats(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putBoolean("IsAnnihilationBlade", true);
+        tag.putInt("RepairCost", Math.max(1, tag.getInt("RepairCost")));
+        tag.putString("ModelName", "annihilationblade:model/blade");
+        tag.putString("TextureName", "annihilationblade:model/blade");
+        tag.putString("SlashArts", "annihilationblade:spatial_fracture");
+        tag.putInt("SummonedSwordColor", 0xFFAA00FF);
+
         applyGodSpecialEffects(stack);
+        applyGodEnchantments(stack);
+        migrateGrowthStats(stack);
 
-        stack.enchant(Enchantments.SHARPNESS, 10);
-        stack.enchant(Enchantments.FIRE_ASPECT, 10);
-        stack.enchant(Enchantments.SMITE, 10);
-        stack.enchant(Enchantments.BANE_OF_ARTHROPODS, 10);
-        stack.enchant(Enchantments.MOB_LOOTING, 10);
-        stack.enchant(Enchantments.SWEEPING_EDGE, 10);
-        stack.enchant(Enchantments.KNOCKBACK, 10);
-        stack.enchant(Enchantments.UNBREAKING, 10);
-        stack.enchant(Enchantments.MENDING, 10);
-        stack.enchant(Enchantments.THORNS, 10);
+        tag.putInt("HideFlags", 2);
+    }
 
-        // 隐藏原版属性 (攻击力/速度)
-        stack.getOrCreateTag().putInt("HideFlags", 2);
+    private static void applyGodEnchantments(ItemStack stack) {
+        Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+        putMaxEnchant(enchantments, Enchantments.SHARPNESS, 10);
+        putMaxEnchant(enchantments, Enchantments.FIRE_ASPECT, 10);
+        putMaxEnchant(enchantments, Enchantments.SMITE, 10);
+        putMaxEnchant(enchantments, Enchantments.BANE_OF_ARTHROPODS, 10);
+        putMaxEnchant(enchantments, Enchantments.MOB_LOOTING, 10);
+        putMaxEnchant(enchantments, Enchantments.SWEEPING_EDGE, 10);
+        putMaxEnchant(enchantments, Enchantments.KNOCKBACK, 10);
+        putMaxEnchant(enchantments, Enchantments.UNBREAKING, 10);
+        putMaxEnchant(enchantments, Enchantments.MENDING, 10);
+        putMaxEnchant(enchantments, Enchantments.THORNS, 10);
+        EnchantmentHelper.setEnchantments(enchantments, stack);
+    }
+
+    private static void putMaxEnchant(Map<Enchantment, Integer> enchantments, Enchantment enchantment, int level) {
+        enchantments.put(enchantment, Math.max(level, enchantments.getOrDefault(enchantment, 0)));
+    }
+
+    private static void migrateGrowthStats(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
+        boolean migrated = tag.getBoolean(GROWTH_MIGRATION_KEY);
+        CompoundTag bladeState = tag.getCompound("bladeState");
+
+        int legacyKillCount = Math.max(readInt(tag, "KillCount", "killCount"),
+                readInt(bladeState, "KillCount", "killCount"));
+        int legacyProudSoul = Math.max(readInt(tag, "ProudSoul", "ProudSoulCount", "proudSoul", "proudsoul"),
+                readInt(bladeState, "ProudSoul", "ProudSoulCount", "proudSoul", "proudsoul"));
+        int legacyRefine = Math.max(readInt(tag, "Refine", "RefineCount", "RepairCounter", "refine", "refineCount"),
+                readInt(bladeState, "Refine", "RefineCount", "RepairCounter", "refine", "refineCount"));
+
+        boolean hasState = stack.getCapability(ItemSlashBlade.BLADESTATE).map(state -> {
+            if (!migrated) {
+                state.setKillCount(Math.max(state.getKillCount(), Math.max(INITIAL_KILL_COUNT, legacyKillCount)));
+                state.setProudSoulCount(Math.max(state.getProudSoulCount(), Math.max(INITIAL_PROUD_SOUL, legacyProudSoul)));
+                state.setRefine(Math.max(state.getRefine(), legacyRefine));
+            }
+
+            CompoundTag updatedBladeState = tag.getCompound("bladeState");
+            updatedBladeState.putInt("killCount", state.getKillCount());
+            updatedBladeState.putInt("proudSoul", state.getProudSoulCount());
+            updatedBladeState.putInt("RepairCounter", state.getRefine());
+            tag.put("bladeState", updatedBladeState);
+            return true;
+        }).orElse(false);
+
+        if (hasState) {
+            removeLegacyGrowthKeys(tag);
+            tag.putBoolean(GROWTH_MIGRATION_KEY, true);
+        }
     }
 
     private static void applyGodSpecialEffects(ItemStack stack) {
@@ -158,5 +197,50 @@ public class Annihilationblade {
             }
         }
         return false;
+    }
+
+    private static int readInt(CompoundTag tag, String... keys) {
+        if (tag == null) {
+            return 0;
+        }
+        for (String key : keys) {
+            if (tag.contains(key)) {
+                return tag.getInt(key);
+            }
+        }
+        return 0;
+    }
+
+    private static void removeLegacyGrowthKeys(CompoundTag tag) {
+        tag.remove("KillCount");
+        tag.remove("killCount");
+        tag.remove("ProudSoul");
+        tag.remove("ProudSoulCount");
+        tag.remove("proudSoul");
+        tag.remove("proudsoul");
+        tag.remove("Refine");
+        tag.remove("RefineCount");
+        tag.remove("refine");
+        tag.remove("refineCount");
+        tag.remove("RepairCounter");
+    }
+
+    private static void resetGrowthStats(ItemStack stack) {
+        CompoundTag tag = stack.getOrCreateTag();
+
+        stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+            state.setKillCount(INITIAL_KILL_COUNT);
+            state.setProudSoulCount(INITIAL_PROUD_SOUL);
+            state.setRefine(0);
+
+            CompoundTag updatedBladeState = tag.getCompound("bladeState");
+            updatedBladeState.putInt("killCount", INITIAL_KILL_COUNT);
+            updatedBladeState.putInt("proudSoul", INITIAL_PROUD_SOUL);
+            updatedBladeState.putInt("RepairCounter", 0);
+            tag.put("bladeState", updatedBladeState);
+        });
+
+        removeLegacyGrowthKeys(tag);
+        tag.putBoolean(GROWTH_MIGRATION_KEY, true);
     }
 }

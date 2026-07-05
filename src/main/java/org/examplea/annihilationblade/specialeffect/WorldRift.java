@@ -15,10 +15,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.examplea.annihilationblade.AnnihilationVisuals;
 import org.examplea.annihilationblade.Annihilationblade;
-import org.examplea.annihilationblade.ModSpecialEffects;
-import org.examplea.annihilationblade.TerminusLogic;
+import org.examplea.annihilationblade.logic.TerminusLogic;
+import org.examplea.annihilationblade.registry.ModSpecialEffects;
+import org.examplea.annihilationblade.visual.AnnihilationVisuals;
 
 @Mod.EventBusSubscriber(modid = Annihilationblade.MODID)
 public class WorldRift extends SpecialEffect {
