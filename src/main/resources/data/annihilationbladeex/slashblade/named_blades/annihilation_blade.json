@@ -1,0 +1,47 @@
+{
+  "item": "annihilationbladeex:annihilation_blade",
+  "name": "annihilationbladeex:annihilation_blade",
+  "enchantments": [
+    {
+      "id": "minecraft:sharpness",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:fire_aspect",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:smite",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:bane_of_arthropods",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:looting",
+      "lvl": 10
+    }
+  ],
+  "properties": {
+    "attack_base": 50.0,
+    "max_damage": 2000,
+    "slash_art": "annihilationbladeex:spatial_fracture",
+    "special_effects": [
+      "annihilationbladeex:dankong",
+      "annihilationbladeex:world_rift",
+      "annihilationbladeex:terminus_echo"
+    ],
+    "sword_type": [
+      "bewitched"
+    ],
+    "unbreakable": true
+  },
+  "render": {
+    "carry_type": "ninja",
+    "model": "annihilationbladeex:model/blade.obj",
+    "texture": "annihilationbladeex:model/blade.png",
+    "summon_sword_color": -5635841
+  },
+  "creativeGroup": "annihilationbladeex:slashblade_tab"
+}

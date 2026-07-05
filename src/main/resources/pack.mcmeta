@@ -1,6 +1,8 @@
 {
   "pack": {
-    "description": "annihilationblade resources",
-    "pack_format": 15
+    "description": {
+      "text": "AnnihilationBladeEX resources"
+    },
+    "pack_format": 34
   }
 }

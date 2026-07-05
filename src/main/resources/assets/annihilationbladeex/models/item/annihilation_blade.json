@@ -1,0 +1,7 @@
+{
+  "parent": "slashblade:item/slashblade",
+  "textures": {
+    "layer0": "annihilationbladeex:item/blade",
+    "particle": "annihilationbladeex:item/blade"
+  }
+}
