@@ -34,14 +34,26 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class TerminusTooltipRenderer {
+    private static final ResourceLocation BLACK_HOLE_BACKGROUND = ResourceLocation.fromNamespaceAndPath(
+            Annihilationblade.MODID, "textures/gui/black_hole_asset_v1_cropped.png");
+    private static final int BLACK_HOLE_TEXTURE_WIDTH = 1600;
+    private static final int BLACK_HOLE_TEXTURE_HEIGHT = 1000;
     private static final int VOID_BLACK = 0xF010061A;
     private static final int ABYSS_PURPLE = 0xCC3E0B72;
     private static final int RIFT_MAGENTA = 0xD9D13CFF;
     private static final int COSMIC_CYAN = 0xD958E7FF;
     private static final int TERMINUS_GOLD = 0xE8FFD36D;
+    private static final int HORIZON_ORANGE = 0xF8FFB763;
+    private static final int STARFALL_BLUE = 0xE86DEBFF;
     private static final int PALE_STAR = 0xF0F8EFFF;
+    private static final int[] BORDER_GRADIENT = {
+            0xF8FFB763, 0xF0F8EFFF, 0xE86DEBFF, 0xD9D13CFF, 0xE8FFD36D, 0xD958E7FF
+    };
     private static final int WIDTH = 286;
     private static final int MIN_WIDTH = 190;
+    private static final int CHIP_HEIGHT = 12;
+    private static final int CHIP_GAP = 4;
+    private static final int MIN_CHIP_WIDTH = 80;
 
     private static final String[] DESCRIPTION_KEYS = {
             "item.annihilationblade.desc.line1",
@@ -66,6 +78,10 @@ public final class TerminusTooltipRenderer {
             "annihilationblade:void_dominion",
             "annihilationblade:causality_collapse",
             "annihilationblade:starless_judgement"
+    };
+
+    private static final int[] EFFECT_COLOR_POOL = {
+            RIFT_MAGENTA, COSMIC_CYAN, TERMINUS_GOLD, HORIZON_ORANGE, STARFALL_BLUE, PALE_STAR
     };
 
     private TerminusTooltipRenderer() {
@@ -118,9 +134,19 @@ public final class TerminusTooltipRenderer {
         List<FormattedCharSequence> descriptionLines = wrapDescription(font, contentWidth);
         List<FormattedCharSequence> enchantmentLines = wrapEnchantments(font, stack, contentWidth);
         BladeStats bladeStats = readBladeStats(stack);
+        List<String> activeEffects = getActiveSpecialEffects(stack);
+        int seCount = activeEffects.size();
+        int columns = Math.max(1, (width - 24) / (MIN_CHIP_WIDTH + CHIP_GAP));
+        if (seCount > 0 && seCount < columns) {
+            columns = seCount;
+        }
+        int rows = seCount == 0 ? 0 : (seCount + columns - 1) / columns;
+        int rowHeight = CHIP_HEIGHT + CHIP_GAP;
+        int totalChipHeight = seCount > 0 ? rows * rowHeight - CHIP_GAP : 0;
         int descriptionHeight = descriptionLines.size() * 10;
         int enchantmentHeight = enchantmentLines.isEmpty() ? 0 : 14 + enchantmentLines.size() * 10;
-        int height = 236 + enchantmentHeight + descriptionHeight;
+        int enchantYOffset = 161 + totalChipHeight + (seCount > 0 ? 10 : 0);
+        int height = enchantYOffset + enchantmentHeight + descriptionHeight + 10;
         int x = mouseX + 12;
         int y = mouseY - 14;
 
@@ -142,9 +168,35 @@ public final class TerminusTooltipRenderer {
         graphics.pose().translate(0.0F, 0.0F, 720.0F);
         renderFrame(graphics, x, y, width, height, time);
         renderTerminusSeals(graphics, x, y, width, height, time);
-        renderBlackHole(graphics, x, y, width, time);
-        renderContent(graphics, font, stack, vanillaLines, descriptionLines, enchantmentLines, bladeStats, x, y, width, height, time);
+        renderContent(graphics, font, stack, vanillaLines, descriptionLines, enchantmentLines, bladeStats, activeEffects, x, y, width, height, time);
         graphics.pose().popPose();
+    }
+
+    private static List<String> getActiveSpecialEffects(ItemStack stack) {
+        List<String> effects = new ArrayList<>();
+        CompoundTag tag = stack.getTag();
+        if (tag == null) {
+            return effects;
+        }
+        CompoundTag bladeState = tag.getCompound("bladeState");
+        ListTag specialEffects = bladeState.getList("SpecialEffects", Tag.TAG_STRING);
+        for (int i = 0; i < specialEffects.size(); i++) {
+            effects.add(specialEffects.getString(i));
+        }
+        return effects;
+    }
+
+    private static Component getEffectDisplayName(String effectId) {
+        for (int i = 0; i < SPECIAL_EFFECT_IDS.length; i++) {
+            if (SPECIAL_EFFECT_IDS[i].equals(effectId)) {
+                return Component.translatable(SPECIAL_EFFECT_KEYS[i]);
+            }
+        }
+        String[] parts = effectId.split(":");
+        if (parts.length == 2) {
+            return Component.translatable("se." + parts[0] + "." + parts[1]);
+        }
+        return Component.literal(effectId);
     }
 
     private static List<FormattedCharSequence> wrapDescription(Font font, int contentWidth) {
@@ -193,14 +245,7 @@ public final class TerminusTooltipRenderer {
 
     private static void renderFrame(GuiGraphics graphics, int x, int y, int width, int height, float time) {
         graphics.fillGradient(x, y, x + width, y + height, VOID_BLACK, 0xF4060210);
-        graphics.fill(x + 1, y + 1, x + width - 1, y + 2, 0xAA2D0B55);
-        graphics.fill(x + 1, y + height - 2, x + width - 1, y + height - 1, 0xAA5D165D);
-        graphics.fill(x + 1, y + 1, x + 2, y + height - 1, 0xAA26134D);
-        graphics.fill(x + width - 2, y + 1, x + width - 1, y + height - 1, 0xAABF7CFF);
-
-        int sweep = x + 8 + (int) (((time * 42.0F) % (width + 80)) - 40.0F);
-        graphics.fill(sweep, y + 2, sweep + 2, y + height - 2, 0x55F8EFFF);
-        graphics.fill(sweep + 3, y + 2, sweep + 4, y + height - 2, 0x35D13CFF);
+        renderBlackHoleArtwork(graphics, x, y, width, height, time);
 
         graphics.enableScissor(x + 2, y + 2, x + width - 2, y + height - 2);
         Matrix4f matrix = graphics.pose().last().pose();
@@ -220,7 +265,110 @@ public final class TerminusTooltipRenderer {
         }
         graphics.disableScissor();
 
+        renderExpandingGradientBorder(matrix, x, y, width, height, time);
+    }
+
+    private static void renderBlackHoleArtwork(GuiGraphics graphics, int x, int y, int width, int height, float time) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        float aspect = BLACK_HOLE_TEXTURE_WIDTH / (float) BLACK_HOLE_TEXTURE_HEIGHT;
+        float imageWidthF = Math.min(graphics.guiWidth() - 4.0F, width * 1.50F);
+        float imageHeightF = imageWidthF / aspect;
+        if (imageHeightF > graphics.guiHeight() - 4.0F) {
+            imageHeightF = graphics.guiHeight() - 4.0F;
+            imageWidthF = imageHeightF * aspect;
+        }
+        int imageWidth = Math.round(imageWidthF);
+        int imageHeight = Math.round(imageHeightF);
+        int imageX = x - (imageWidth - width) / 2 + (int) (Mth.sin(time * 0.22F) * 3.0F);
+        int imageY = y + Math.round(height * 0.03F) - Math.round(imageHeight * 0.20F)
+                + (int) (Mth.cos(time * 0.19F) * 3.0F);
+        imageX = Mth.clamp(imageX, 2, Math.max(2, graphics.guiWidth() - imageWidth - 2));
+        imageY = Mth.clamp(imageY, 2, Math.max(2, graphics.guiHeight() - imageHeight - 2));
+
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.74F);
+        graphics.blit(BLACK_HOLE_BACKGROUND, imageX, imageY, imageWidth, imageHeight,
+                0.0F, 0.0F, BLACK_HOLE_TEXTURE_WIDTH, BLACK_HOLE_TEXTURE_HEIGHT,
+                BLACK_HOLE_TEXTURE_WIDTH, BLACK_HOLE_TEXTURE_HEIGHT);
+
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        graphics.fillGradient(x + 3, y + 3, x + width - 3, y + height - 3, 0x1805010F, 0xC8060210);
+        graphics.fillGradient(x + 5, y + height / 2, x + width - 5, y + height - 5, 0x38000000, 0xB8000006);
+        RenderSystem.disableBlend();
+    }
+
+    private static void renderExpandingGradientBorder(Matrix4f matrix, int x, int y, int width, int height, float time) {
+        int segments = 22;
+        int layers = 7;
+        float drift = time * 0.085F;
+        for (int layer = layers; layer >= 1; layer--) {
+            float t = layer / (float) layers;
+            float spread = 2.0F + layer * 2.6F;
+            float thickness = 1.4F + layer * 0.48F;
+            float alpha = 0.05F + (1.0F - t) * 0.34F;
+            drawSegmentedBorder(matrix, x, y, width, height, spread, thickness, segments, drift + layer * 0.037F, alpha);
+        }
+
+        drawSegmentedBorder(matrix, x, y, width, height, 1.2F, 1.7F, segments, drift + 0.28F, 0.92F);
+        drawSegmentedBorder(matrix, x, y, width, height, 4.2F, 1.1F, segments, drift + 0.52F, 0.48F);
         drawCornerGlyphs(matrix, x, y, width, height, time);
+        drawBorderCornerBloom(matrix, x, y, width, height, time);
+    }
+
+    private static void drawSegmentedBorder(Matrix4f matrix, int x, int y, int width, int height, float spread, float thickness,
+                                            int segments, float drift, float alpha) {
+        for (int i = 0; i < segments; i++) {
+            float t1 = i / (float) segments;
+            float t2 = (i + 1) / (float) segments;
+            int topA = gradientColor(t1 + drift, alpha);
+            int topB = gradientColor(t2 + drift, alpha);
+            int bottomA = gradientColor(0.53F - t1 + drift, alpha * 0.94F);
+            int bottomB = gradientColor(0.53F - t2 + drift, alpha * 0.94F);
+            float sx = x + width * t1;
+            float ex = x + width * t2;
+            drawQuad(matrix, sx, y - spread, ex, y - spread, ex, y - spread + thickness, sx, y - spread + thickness,
+                    topA, topB, topB, topA);
+            drawQuad(matrix, sx, y + height + spread - thickness, ex, y + height + spread - thickness,
+                    ex, y + height + spread, sx, y + height + spread, bottomB, bottomA, bottomA, bottomB);
+        }
+
+        for (int i = 0; i < segments; i++) {
+            float t1 = i / (float) segments;
+            float t2 = (i + 1) / (float) segments;
+            int leftA = gradientColor(0.24F + t1 + drift, alpha * 0.82F);
+            int leftB = gradientColor(0.24F + t2 + drift, alpha * 0.82F);
+            int rightA = gradientColor(0.77F - t1 + drift, alpha * 0.88F);
+            int rightB = gradientColor(0.77F - t2 + drift, alpha * 0.88F);
+            float sy = y + height * t1;
+            float ey = y + height * t2;
+            drawQuad(matrix, x - spread, sy, x - spread + thickness, sy, x - spread + thickness, ey, x - spread, ey,
+                    leftA, leftA, leftB, leftB);
+            drawQuad(matrix, x + width + spread - thickness, sy, x + width + spread, sy, x + width + spread, ey,
+                    x + width + spread - thickness, ey, rightA, rightA, rightB, rightB);
+        }
+    }
+
+    private static void drawBorderCornerBloom(Matrix4f matrix, int x, int y, int width, int height, float time) {
+        float pulse = 0.55F + 0.45F * Mth.sin(time * 2.1F);
+        float outer = 11.0F + pulse * 4.0F;
+        float inner = 5.0F + pulse * 2.0F;
+        drawCornerBloom(matrix, x, y, outer, inner, time, 0.05F);
+        drawCornerBloom(matrix, x + width, y, outer, inner, time, 0.30F);
+        drawCornerBloom(matrix, x, y + height, outer, inner, time, 0.58F);
+        drawCornerBloom(matrix, x + width, y + height, outer, inner, time, 0.82F);
+    }
+
+    private static void drawCornerBloom(Matrix4f matrix, float cx, float cy, float outer, float inner, float time, float phase) {
+        int core = gradientColor(phase + time * 0.07F, 0.88F);
+        int glow = gradientColor(phase + 0.18F + time * 0.05F, 0.25F);
+        int spark = gradientColor(phase + 0.37F + time * 0.09F, 0.56F);
+        drawDiamond(matrix, cx, cy, outer, glow);
+        drawDiamond(matrix, cx, cy, inner, core);
+        drawBeam(matrix, cx - outer * 1.25F, cy, cx - inner * 0.35F, cy, 0.9F, withAlpha(glow, 0.70F), spark);
+        drawBeam(matrix, cx + inner * 0.35F, cy, cx + outer * 1.25F, cy, 0.9F, spark, withAlpha(glow, 0.70F));
+        drawBeam(matrix, cx, cy - outer * 1.25F, cx, cy - inner * 0.35F, 0.9F, withAlpha(glow, 0.70F), spark);
+        drawBeam(matrix, cx, cy + inner * 0.35F, cx, cy + outer * 1.25F, 0.9F, spark, withAlpha(glow, 0.70F));
     }
 
     private static void renderTerminusSeals(GuiGraphics graphics, int x, int y, int width, int height, float time) {
@@ -242,27 +390,9 @@ public final class TerminusTooltipRenderer {
         drawCausalityThreads(matrix, x, y, width, height, time);
     }
 
-    private static void renderBlackHole(GuiGraphics graphics, int x, int y, int width, float time) {
-        Matrix4f matrix = graphics.pose().last().pose();
-        float cx = x + width * 0.55F;
-        float cy = y + 60.0F;
-        float wobble = Mth.sin(time * 1.3F) * 1.8F;
-
-        drawEllipse(matrix, cx, cy + wobble, 86.0F, 34.0F, withAlpha(RIFT_MAGENTA, 0.00F), withAlpha(RIFT_MAGENTA, 0.12F), 56);
-        drawEllipse(matrix, cx, cy + wobble, 66.0F, 25.0F, withAlpha(COSMIC_CYAN, 0.00F), withAlpha(COSMIC_CYAN, 0.10F), 48);
-        drawAccretionDisk(matrix, cx, cy + wobble, 78.0F, 18.0F, time * 1.15F, 2.2F);
-        drawAccretionDisk(matrix, cx, cy + wobble, 58.0F, 13.0F, -time * 1.55F, 1.4F);
-        drawVortexSpiral(matrix, cx, cy + wobble, time);
-        drawDisc(matrix, cx, cy + wobble, 28.0F, 0xFC010006, 0xF40D0216, 48);
-        drawDisc(matrix, cx, cy + wobble, 18.0F, 0xFF000000, 0xFD020008, 42);
-        drawRing(matrix, cx, cy + wobble, 31.0F, 1.4F, withAlpha(PALE_STAR, 0.30F), time * 1.8F, 44, 2);
-        drawRing(matrix, cx, cy + wobble, 38.0F, 0.9F, withAlpha(TERMINUS_GOLD, 0.34F), -time * 0.9F, 36, 1);
-        drawInfallingStars(matrix, cx, cy + wobble, time);
-    }
-
     private static void renderContent(GuiGraphics graphics, Font font, ItemStack stack, List<Component> vanillaLines,
                                       List<FormattedCharSequence> descriptionLines, List<FormattedCharSequence> enchantmentLines,
-                                      BladeStats bladeStats, int x, int y, int width, int height, float time) {
+                                      BladeStats bladeStats, List<String> activeEffects, int x, int y, int width, int height, float time) {
         int center = x + width / 2;
         Component title = vanillaLines.isEmpty() ? stack.getHoverName() : vanillaLines.get(0);
         drawGlowText(graphics, font, title, center - font.width(title) / 2, y + 10, PALE_STAR, RIFT_MAGENTA);
@@ -279,16 +409,27 @@ public final class TerminusTooltipRenderer {
         drawBladeStats(graphics, font, x + 12, statsY, width - 24, bladeStats, time);
 
         int chipY = statsY + 30;
-        int chipWidth = (width - 30) / 2;
-        for (int i = 0; i < SPECIAL_EFFECT_KEYS.length; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            int chipX = x + 12 + col * (chipWidth + 6);
-            int color = i % 3 == 0 ? RIFT_MAGENTA : (i % 3 == 1 ? COSMIC_CYAN : TERMINUS_GOLD);
-            drawSpecialEffectChip(graphics, font, chipX, chipY + row * 15, chipWidth, Component.translatable(SPECIAL_EFFECT_KEYS[i]), color, time + i * 0.37F);
+        int seCount = activeEffects.size();
+        int columns = Math.max(1, (width - 24) / (MIN_CHIP_WIDTH + CHIP_GAP));
+        if (seCount > 0 && seCount < columns) {
+            columns = seCount;
+        }
+        int rows = seCount == 0 ? 0 : (seCount + columns - 1) / columns;
+        int rowHeight = CHIP_HEIGHT + CHIP_GAP;
+        int chipWidth = seCount == 0 ? 0 : (width - 24 - (columns - 1) * CHIP_GAP) / columns;
+        int totalChipHeight = seCount > 0 ? rows * rowHeight - CHIP_GAP : 0;
+
+        for (int i = 0; i < seCount; i++) {
+            int col = i % columns;
+            int row = i / columns;
+            int chipX = x + 12 + col * (chipWidth + CHIP_GAP);
+            int currentChipY = chipY + row * rowHeight;
+            int color = EFFECT_COLOR_POOL[i % EFFECT_COLOR_POOL.length];
+            float phaseOffset = (float) ((i * 2.399F) % (Math.PI * 2)) + noise(i * 17.3F) * 2.0F;
+            drawSpecialEffectChip(graphics, font, chipX, currentChipY, chipWidth, getEffectDisplayName(activeEffects.get(i)), color, time + phaseOffset);
         }
 
-        int enchantY = chipY + 50;
+        int enchantY = chipY + totalChipHeight + (seCount > 0 ? 10 : 0);
         int enchantmentHeight = drawEnchantments(graphics, font, x + 12, enchantY, width - 24, enchantmentLines);
 
         int descY = enchantY + (enchantmentHeight == 0 ? 4 : enchantmentHeight + 7);
@@ -310,7 +451,6 @@ public final class TerminusTooltipRenderer {
         drawStatCell(graphics, font, x + cellWidth + gap, y, cellWidth, "耀魂", formatNumber(stats.proudSoul()), TERMINUS_GOLD, time + 0.7F);
         drawStatCell(graphics, font, x + (cellWidth + gap) * 2, y, width - (cellWidth + gap) * 2, "精炼", formatNumber(stats.refine()), RIFT_MAGENTA, time + 1.4F);
     }
-
     private static void drawStatCell(GuiGraphics graphics, Font font, int x, int y, int width, String label, String value, int accent, float phase) {
         graphics.fill(x, y, x + width, y + 20, 0x7E160A22);
         graphics.fill(x, y, x + width, y + 1, withAlpha(accent, 0.70F));
@@ -347,10 +487,13 @@ public final class TerminusTooltipRenderer {
     }
 
     private static void drawSpecialEffectChip(GuiGraphics graphics, Font font, int x, int y, int width, Component text, int color, float phase) {
-        graphics.fill(x, y, x + width, y + 12, 0x80200A31);
+        graphics.fill(x, y, x + width, y + CHIP_HEIGHT, 0x80200A31);
         graphics.fill(x, y, x + width, y + 1, withAlpha(color, 0.54F));
-        graphics.fill(x, y + 11, x + width, y + 12, 0x5520083A);
-        int fill = 12 + (int) ((width - 18) * (0.5F + 0.5F * Mth.sin(phase * 2.7F)));
+        graphics.fill(x, y + CHIP_HEIGHT - 1, x + width, y + CHIP_HEIGHT, 0x5520083A);
+        float mainPulse = 0.5F + 0.5F * Mth.sin(phase * 2.7F);
+        float microPulse = 0.15F * Mth.sin(phase * 8.3F + 1.2F);
+        float finalPulse = Mth.clamp(mainPulse + microPulse, 0.0F, 1.0F);
+        int fill = 2 + (int) ((width - 4) * finalPulse);
         graphics.fill(x + 2, y + 9, x + Math.min(width - 2, fill), y + 10, withAlpha(color, 0.78F));
         graphics.drawString(font, text, x + 5, y + 2, 0xFFEDE2FF, false);
     }
@@ -451,96 +594,6 @@ public final class TerminusTooltipRenderer {
             int color = i % 3 == 0 ? withAlpha(COSMIC_CYAN, 0.28F) : (i % 3 == 1 ? withAlpha(RIFT_MAGENTA, 0.24F) : withAlpha(TERMINUS_GOLD, 0.22F));
             drawBeam(matrix, px - slash, py + sway, px + slash * 0.72F, py - slash * 0.48F + sway, 0.8F, color, withAlpha(PALE_STAR, 0.20F));
         }
-    }
-
-    private static void drawAccretionDisk(Matrix4f matrix, float cx, float cy, float rx, float ry, float rotation, float width) {
-        int segments = 54;
-        for (int i = 0; i < segments; i++) {
-            if (i % 9 == 4) {
-                continue;
-            }
-            float a1 = rotation + (float) (Math.PI * 2.0D * i / segments);
-            float a2 = rotation + (float) (Math.PI * 2.0D * (i + 0.78F) / segments);
-            float heat = 0.5F + 0.5F * Mth.sin(rotation * 1.7F + i * 0.41F);
-            int front = heat > 0.62F ? TERMINUS_GOLD : (i % 2 == 0 ? COSMIC_CYAN : RIFT_MAGENTA);
-            int back = i % 3 == 0 ? RIFT_MAGENTA : COSMIC_CYAN;
-            drawBeam(matrix,
-                    cx + Mth.cos(a1) * rx,
-                    cy + Mth.sin(a1) * ry,
-                    cx + Mth.cos(a2) * rx,
-                    cy + Mth.sin(a2) * ry,
-                    width,
-                    withAlpha(front, 0.42F + heat * 0.38F),
-                    withAlpha(back, 0.18F + heat * 0.26F));
-        }
-    }
-
-    private static void drawVortexSpiral(Matrix4f matrix, float cx, float cy, float time) {
-        for (int arm = 0; arm < 3; arm++) {
-            float base = time * (1.45F + arm * 0.18F) + arm * 2.094F;
-            int color = arm == 0 ? TERMINUS_GOLD : (arm == 1 ? RIFT_MAGENTA : COSMIC_CYAN);
-            for (int i = 0; i < 9; i++) {
-                float t1 = i / 9.0F;
-                float t2 = (i + 0.85F) / 9.0F;
-                float a1 = base + t1 * 5.2F;
-                float a2 = base + t2 * 5.2F;
-                float r1 = Mth.lerp(t1, 22.0F, 58.0F);
-                float r2 = Mth.lerp(t2, 22.0F, 58.0F);
-                drawBeam(matrix,
-                        cx + Mth.cos(a1) * r1,
-                        cy + Mth.sin(a1) * r1 * 0.42F,
-                        cx + Mth.cos(a2) * r2,
-                        cy + Mth.sin(a2) * r2 * 0.42F,
-                        0.9F,
-                        withAlpha(color, 0.44F - t1 * 0.18F),
-                        withAlpha(PALE_STAR, 0.28F - t1 * 0.12F));
-            }
-        }
-    }
-
-    private static void drawInfallingStars(Matrix4f matrix, float cx, float cy, float time) {
-        for (int i = 0; i < 18; i++) {
-            float seed = i * 8.271F;
-            float orbit = (time * (0.28F + noise(seed) * 0.42F) + noise(seed + 2.0F)) % 1.0F;
-            float radius = Mth.lerp(orbit, 92.0F, 23.0F);
-            float angle = time * 1.8F + i * 1.37F + orbit * 5.8F;
-            float px = cx + Mth.cos(angle) * radius;
-            float py = cy + Mth.sin(angle) * radius * 0.42F;
-            int color = i % 4 == 0 ? TERMINUS_GOLD : (i % 2 == 0 ? COSMIC_CYAN : RIFT_MAGENTA);
-            float size = 1.1F + (1.0F - orbit) * 1.8F;
-            drawDiamond(matrix, px, py, size, withAlpha(color, 0.62F));
-            drawBeam(matrix,
-                    px + Mth.cos(angle) * 9.0F,
-                    py + Mth.sin(angle) * 3.8F,
-                    px,
-                    py,
-                    0.6F,
-                    withAlpha(color, 0.22F),
-                    withAlpha(PALE_STAR, 0.36F));
-        }
-    }
-
-    private static void drawDisc(Matrix4f matrix, float cx, float cy, float radius, int centerColor, int edgeColor, int segments) {
-        drawEllipse(matrix, cx, cy, radius, radius, centerColor, edgeColor, segments);
-    }
-
-    private static void drawEllipse(Matrix4f matrix, float cx, float cy, float rx, float ry, int centerColor, int edgeColor, int segments) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
-        for (int i = 0; i < segments; i++) {
-            float a1 = (float) (Math.PI * 2.0D * i / segments);
-            float a2 = (float) (Math.PI * 2.0D * (i + 1) / segments);
-            vertex(builder, matrix, cx, cy, centerColor);
-            vertex(builder, matrix, cx + Mth.cos(a1) * rx, cy + Mth.sin(a1) * ry, edgeColor);
-            vertex(builder, matrix, cx + Mth.cos(a2) * rx, cy + Mth.sin(a2) * ry, edgeColor);
-        }
-        BufferUploader.drawWithShader(builder.end());
-        RenderSystem.enableDepthTest();
-        RenderSystem.disableBlend();
     }
 
     private static void drawDiamond(Matrix4f matrix, float cx, float cy, float radius, int color) {
@@ -654,6 +707,24 @@ public final class TerminusTooltipRenderer {
     private static int withAlpha(int color, float alpha) {
         int a = Mth.clamp((int) (((color >>> 24) & 255) * Mth.clamp(alpha, 0.0F, 1.0F)), 0, 255);
         return (color & 0x00FFFFFF) | (a << 24);
+    }
+
+    private static int gradientColor(float progress, float alpha) {
+        float wrapped = Mth.frac(progress);
+        float scaled = wrapped * BORDER_GRADIENT.length;
+        int index = (int) scaled;
+        float local = scaled - index;
+        int from = BORDER_GRADIENT[index % BORDER_GRADIENT.length];
+        int to = BORDER_GRADIENT[(index + 1) % BORDER_GRADIENT.length];
+        return withAlpha(lerpColor(from, to, local), alpha);
+    }
+
+    private static int lerpColor(int from, int to, float amount) {
+        float t = Mth.clamp(amount, 0.0F, 1.0F);
+        int r = Mth.clamp((int) Mth.lerp(t, (float) ((from >> 16) & 255), (float) ((to >> 16) & 255)), 0, 255);
+        int g = Mth.clamp((int) Mth.lerp(t, (float) ((from >> 8) & 255), (float) ((to >> 8) & 255)), 0, 255);
+        int b = Mth.clamp((int) Mth.lerp(t, (float) (from & 255), (float) (to & 255)), 0, 255);
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     private static float noise(float value) {

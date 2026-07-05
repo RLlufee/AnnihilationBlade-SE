@@ -24,5 +24,8 @@
   "item.annihilationblade.passive": "§6§l权柄§8：§e绝对庇护 §7/ §b虚空飞行 §7/ §d终焉处决",
   "item.annihilationblade.infinite_damage": "+∞ 终焉攻击伤害",
   "item.annihilationblade.annihilation_core.tip": "§d右键唤醒终焉之刃",
-  "item.annihilationblade.annihilation_fragment.tip": "§7九枚星骸碎片，可凝成§5湮灭核心"
+  "item.annihilationblade.annihilation_fragment.tip": "§7九枚星骸碎片，可凝成§5湮灭核心",
+
+  "enchantment.level.10": "「§6极限级§r」",
+  "enchantment.level.15": "「§e神威级§r」"
 }

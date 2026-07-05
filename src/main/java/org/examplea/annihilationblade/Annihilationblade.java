@@ -131,7 +131,7 @@ public class Annihilationblade {
         putMaxEnchant(enchantments, Enchantments.BANE_OF_ARTHROPODS, 10);
         putMaxEnchant(enchantments, Enchantments.MOB_LOOTING, 10);
         putMaxEnchant(enchantments, Enchantments.SWEEPING_EDGE, 10);
-        putMaxEnchant(enchantments, Enchantments.KNOCKBACK, 10);
+        putMaxEnchant(enchantments, Enchantments.POWER_ARROWS, 10);
         putMaxEnchant(enchantments, Enchantments.UNBREAKING, 10);
         putMaxEnchant(enchantments, Enchantments.MENDING, 10);
         putMaxEnchant(enchantments, Enchantments.THORNS, 10);
