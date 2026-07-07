@@ -8,7 +8,7 @@
     },
     {
       "id": "minecraft:fire_aspect",
-      "lvl": 5
+      "lvl": 10
     },
     {
       "id": "minecraft:smite",
@@ -21,6 +21,26 @@
     {
       "id": "minecraft:looting",
       "lvl": 10
+    },
+    {
+      "id": "minecraft:sweeping_edge",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:power",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:mending",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:thorns",
+      "lvl": 10
     }
   ],
   "properties": {
@@ -30,7 +50,12 @@
     "special_effects": [
       "annihilationbladeex:dankong",
       "annihilationbladeex:world_rift",
-      "annihilationbladeex:terminus_echo"
+      "annihilationbladeex:terminus_echo",
+      "annihilationbladeex:void_dominion",
+      "annihilationbladeex:causality_collapse",
+      "annihilationbladeex:starless_judgement",
+      "annihilationbladeex:phantom_judgement",
+      "annihilationbladeex:abyssal_decree"
     ],
     "sword_type": [
       "bewitched"
