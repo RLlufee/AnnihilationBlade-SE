@@ -39,6 +39,8 @@ public class Annihilationblade {
     private static final int INITIAL_KILL_COUNT = 0;
     private static final int INITIAL_PROUD_SOUL = 0;
     private static final String GROWTH_MIGRATION_KEY = "AnnihilationBladeGrowthMigrated";
+    private static final String ANNIHILATION_BLADE_NAME = "annihilation_blade";
+    private static final String BLOOD_PRISON_NAME = "blood_prison";
 
     private static final String[] GOD_SPECIAL_EFFECTS = {
             "annihilationblade:dankong",
@@ -46,7 +48,9 @@ public class Annihilationblade {
             "annihilationblade:terminus_echo",
             "annihilationblade:void_dominion",
             "annihilationblade:causality_collapse",
-            "annihilationblade:starless_judgement"
+            "annihilationblade:starless_judgement",
+            "annihilationblade:phantom_judgement",
+            "annihilationblade:abyssal_decree"
     };
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
@@ -68,6 +72,10 @@ public class Annihilationblade {
                         if (!godSword.isEmpty()) {
                             output.accept(godSword);
                         }
+                        ItemStack bloodPrison = getNamedBladeFromManager(BLOOD_PRISON_NAME);
+                        if (!bloodPrison.isEmpty()) {
+                            output.accept(bloodPrison);
+                        }
                         output.accept(new ItemStack(ModItems.ANNIHILATION_FRAGMENT.get()));
                         output.accept(new ItemStack(ModItems.ANNIHILATION_CORE.get()));
                     })
@@ -85,13 +93,23 @@ public class Annihilationblade {
     }
 
     private static ItemStack getGodBladeFromManager() {
+        ItemStack stack = getNamedBladeFromManager(ANNIHILATION_BLADE_NAME);
+        if (!stack.isEmpty()) {
+            applyGodStats(stack);
+        }
+        return stack;
+    }
+
+    public static ItemStack getNamedBladeFromManager(String bladeName) {
         if (Minecraft.getInstance().getConnection() != null) {
             var registry = BladeModelManager.getClientSlashBladeRegistry();
             for (var entry : registry.entrySet()) {
-                if (entry.getKey() != null && entry.getKey().location().getNamespace().equals(MODID)) {
-                    ItemStack stack = entry.getValue().getBlade().copy();
-                    applyGodStats(stack);
-                    return stack;
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                ResourceLocation id = entry.getKey().location();
+                if (id.getNamespace().equals(MODID) && id.getPath().equals(bladeName)) {
+                    return entry.getValue().getBlade().copy();
                 }
             }
         }

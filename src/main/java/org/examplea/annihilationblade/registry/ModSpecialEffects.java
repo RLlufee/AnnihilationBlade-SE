@@ -22,6 +22,10 @@ public class ModSpecialEffects {
             SPECIAL_EFFECTS.register("causality_collapse", org.examplea.annihilationblade.specialeffect.CausalityCollapse::new);
     public static final RegistryObject<SpecialEffect> STARLESS_JUDGEMENT =
             SPECIAL_EFFECTS.register("starless_judgement", org.examplea.annihilationblade.specialeffect.StarlessJudgement::new);
+    public static final RegistryObject<SpecialEffect> PHANTOM_JUDGEMENT =
+            SPECIAL_EFFECTS.register("phantom_judgement", org.examplea.annihilationblade.specialeffect.PhantomJudgement::new);
+    public static final RegistryObject<SpecialEffect> ABYSSAL_DECREE =
+            SPECIAL_EFFECTS.register("abyssal_decree", org.examplea.annihilationblade.specialeffect.AbyssalDecree::new);
 
     public static void register(IEventBus eventBus) {
         SPECIAL_EFFECTS.register(eventBus);

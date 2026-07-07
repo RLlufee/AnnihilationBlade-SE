@@ -1,7 +1,5 @@
 package org.examplea.annihilationblade.item;
 
-import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -49,16 +47,10 @@ public class ItemAnnihilationCore extends Item {
     }
 
     private static ItemStack getGodBladeFromManager() {
-        if (Minecraft.getInstance().getConnection() != null) {
-            var registry = BladeModelManager.getClientSlashBladeRegistry();
-            for (var entry : registry.entrySet()) {
-                if (entry.getKey() != null && entry.getKey().location().getNamespace().equals(Annihilationblade.MODID)) {
-                    ItemStack stack = entry.getValue().getBlade().copy();
-                    Annihilationblade.applyGodStats(stack);
-                    return stack;
-                }
-            }
+        ItemStack stack = Annihilationblade.getNamedBladeFromManager("annihilation_blade");
+        if (!stack.isEmpty()) {
+            Annihilationblade.applyGodStats(stack);
         }
-        return ItemStack.EMPTY;
+        return stack;
     }
 }

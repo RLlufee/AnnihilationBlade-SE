@@ -1,0 +1,23 @@
+{
+  "name": "annihilationblade:blood_prison",
+  "model_name": "annihilationblade:model/blood_prison.obj",
+  "texture_name": "annihilationblade:model/blood_prison.png",
+  "properties": {
+    "attack_base": 8.0,
+    "max_damage": 1800,
+    "sword_type": [
+      "bewitched"
+    ],
+    "default_grip": {
+      "scale": [0.05, 0.05, 0.05],
+      "rotate": [0.0, 0.0, 0.0],
+      "translate": [0.0, 0.0, 0.0]
+    }
+  },
+  "render": {
+    "carry_type": "ninja",
+    "model": "annihilationblade:model/blood_prison.obj",
+    "texture": "annihilationblade:model/blood_prison.png",
+    "summon_sword_color": 16711680
+  }
+}

@@ -3,6 +3,8 @@ package org.examplea.annihilationblade.visual;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -89,6 +91,7 @@ public final class AnnihilationVisuals {
     public static void spawnExecutionBurst(ServerLevel level, LivingEntity target, RandomSource random) {
         Vec3 center = target.position().add(0.0D, target.getBbHeight() * 0.55D, 0.0D);
         double radius = Math.max(0.9D, target.getBbWidth() * 1.65D);
+        spawnWhiteExecutionCircle(level, target, radius);
         level.sendParticles(ParticleTypes.FLASH, center.x, center.y, center.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 24, radius * 0.38D, radius * 0.55D, radius * 0.38D, 0.22D);
         level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, center.x, center.y, center.z, 10, radius * 0.26D, radius * 0.36D, radius * 0.26D, 0.03D);
@@ -103,6 +106,33 @@ public final class AnnihilationVisuals {
             Vec3 dir = randomUnit(random);
             spawnLine(level, center, center.add(dir.scale(radius * (1.2D + random.nextDouble() * 0.9D))), ParticleTypes.ELECTRIC_SPARK, 5, 0.018D);
         }
+    }
+
+    private static void spawnWhiteExecutionCircle(ServerLevel level, LivingEntity target, double targetRadius) {
+        Vec3 foot = target.position().add(0.0D, 0.06D, 0.0D);
+        double radius = Math.max(1.15D, targetRadius * 1.55D);
+
+        spawnRing(level, foot, X_AXIS, Z_AXIS, radius, ParticleTypes.END_ROD, 96, 0.002D);
+        spawnRing(level, foot.add(0.0D, 0.03D, 0.0D), X_AXIS, Z_AXIS, radius * 0.72D, ParticleTypes.FIREWORK, 72, 0.002D);
+        spawnRing(level, foot.add(0.0D, 0.06D, 0.0D), X_AXIS, Z_AXIS, radius * 0.42D, ParticleTypes.END_ROD, 48, 0.001D);
+
+        for (int i = 0; i < 6; i++) {
+            double a = TAU * i / 6.0D;
+            double b = a + TAU / 3.0D;
+            Vec3 start = foot.add(Math.cos(a) * radius * 0.88D, 0.08D, Math.sin(a) * radius * 0.88D);
+            Vec3 end = foot.add(Math.cos(b) * radius * 0.88D, 0.08D, Math.sin(b) * radius * 0.88D);
+            spawnLine(level, start, end, ParticleTypes.END_ROD, 18, 0.001D);
+        }
+
+        for (int i = 0; i < 12; i++) {
+            double angle = TAU * i / 12.0D;
+            Vec3 inner = foot.add(Math.cos(angle) * radius * 0.28D, 0.1D, Math.sin(angle) * radius * 0.28D);
+            Vec3 outer = foot.add(Math.cos(angle) * radius, 0.1D, Math.sin(angle) * radius);
+            spawnLine(level, inner, outer, i % 2 == 0 ? ParticleTypes.END_ROD : ParticleTypes.FIREWORK, 7, 0.001D);
+        }
+
+        level.sendParticles(ParticleTypes.END_ROD, foot.x, foot.y + 0.16D, foot.z, 28, radius * 0.34D, 0.02D, radius * 0.34D, 0.018D);
+        level.sendParticles(ParticleTypes.FLASH, foot.x, foot.y + 0.18D, foot.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
     }
 
     public static void spawnBlinkGate(ServerLevel level, Vec3 center, double radius) {
@@ -144,6 +174,43 @@ public final class AnnihilationVisuals {
         }
     }
 
+    public static void spawnWorldRiftOpening(ServerLevel level, Vec3 center, double radius) {
+        level.playSound(null, center.x, center.y, center.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.8F, 0.45F);
+        level.playSound(null, center.x, center.y, center.z, SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.PLAYERS, 1.2F, 1.7F);
+        level.sendParticles(ParticleTypes.FLASH, center.x, center.y, center.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        level.sendParticles(ParticleTypes.PORTAL, center.x, center.y, center.z, 160, radius * 0.65D, 2.0D, radius * 0.65D, 0.8D);
+        spawnWorldRiftBloom(level, center, radius);
+        spawnRing(level, center, X_AXIS, Z_AXIS, radius * 1.1D, ParticleTypes.REVERSE_PORTAL, 104, 0.01D);
+        spawnRing(level, center.add(0.0D, 1.4D, 0.0D), X_AXIS, Z_AXIS, radius * 0.55D, ParticleTypes.END_ROD, 64, 0.008D);
+    }
+
+    public static void spawnWorldRiftThread(ServerLevel level, Vec3 origin, Vec3 target, int index, RandomSource random) {
+        double width = 0.72D + (index % 4) * 0.08D;
+        spawnSlashBridge(level, origin, target, width, random);
+        spawnLine(level, origin, target, ParticleTypes.ELECTRIC_SPARK, 14, 0.025D);
+        level.sendParticles(ParticleTypes.END_ROD, target.x, target.y, target.z, 24, 0.5D, 0.7D, 0.5D, 0.08D);
+        if (index % 3 == 0) {
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL, target.x, target.y, target.z, 18, 0.45D, 0.45D, 0.45D, 0.18D);
+        }
+    }
+
+    public static void spawnCausalityAnchor(ServerLevel level, Vec3 center, int chainSize) {
+        double radius = Math.min(7.0D, 2.4D + chainSize * 0.18D);
+        level.playSound(null, center.x, center.y, center.z, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, 1.85F);
+        level.playSound(null, center.x, center.y, center.z, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.PLAYERS, 1.2F, 0.7F);
+        level.sendParticles(ParticleTypes.FLASH, center.x, center.y, center.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        spawnRing(level, center.add(0.0D, 0.45D, 0.0D), X_AXIS, Z_AXIS, radius, COSMIC_CYAN, 72, 0.008D);
+        spawnRing(level, center.add(0.0D, 1.2D, 0.0D), X_AXIS, Z_AXIS, radius * 0.58D, TERMINUS_GOLD, 52, 0.008D);
+    }
+
+    public static void spawnCausalityStep(ServerLevel level, Vec3 previous, Vec3 target, int index, RandomSource random) {
+        double width = 0.85D + index * 0.055D;
+        spawnSlashBridge(level, previous, target, width, random);
+        spawnLine(level, previous, target, index % 2 == 0 ? ParticleTypes.END_ROD : ParticleTypes.ELECTRIC_SPARK, 18, 0.018D);
+        spawnRing(level, target, X_AXIS, Z_AXIS, 0.9D + index * 0.04D, index % 2 == 0 ? COSMIC_CYAN : TERMINUS_GOLD, 32, 0.006D);
+        level.sendParticles(ParticleTypes.WITCH, target.x, target.y, target.z, 16, 0.36D, 0.42D, 0.36D, 0.04D);
+    }
+
     public static void spawnEchoWave(ServerLevel level, Vec3 start, Vec3 direction, Vec3 right, double range, double width, int wave) {
         Vec3 forward = safeNormalize(direction, Z_AXIS);
         Vec3 side = safeNormalize(right, X_AXIS);
@@ -163,6 +230,24 @@ public final class AnnihilationVisuals {
             double radius = width * (0.28D + distance / range * 0.22D) + wave * 0.12D;
             spawnRing(level, center, side, up, radius, wave % 2 == 0 ? VOID_PURPLE : TERMINUS_GOLD, 24, 0.01D);
         }
+    }
+
+    public static void spawnStarlessJudgementCast(ServerLevel level, Vec3 start, Vec3 direction, Vec3 right, double range, double width) {
+        Vec3 forward = safeNormalize(direction, Z_AXIS);
+        Vec3 side = safeNormalize(right, X_AXIS);
+        Vec3 end = start.add(forward.scale(range));
+
+        level.playSound(null, start.x, start.y, start.z, SoundEvents.TRIDENT_THUNDER, SoundSource.PLAYERS, 1.2F, 1.75F);
+        level.playSound(null, start.x, start.y, start.z, SoundEvents.END_PORTAL_SPAWN, SoundSource.PLAYERS, 0.8F, 1.35F);
+        for (int lane = -1; lane <= 1; lane++) {
+            Vec3 laneStart = start.add(side.scale(lane * width * 0.45D)).add(0.0D, Math.abs(lane) * 0.35D, 0.0D);
+            spawnEchoWave(level, laneStart, forward, side, range + Math.abs(lane) * 7.0D, width, lane + 1);
+        }
+
+        spawnLine(level, start, end, ParticleTypes.END_ROD, 44, 0.01D);
+        spawnLine(level, start.add(side.scale(width * 0.72D)), end.add(side.scale(-width * 0.38D)), ParticleTypes.ELECTRIC_SPARK, 32, 0.02D);
+        spawnLine(level, start.add(side.scale(-width * 0.72D)), end.add(side.scale(width * 0.38D)), TERMINUS_GOLD, 32, 0.02D);
+        level.sendParticles(ParticleTypes.FLASH, end.x, end.y, end.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
     }
 
     public static void spawnSlashBridge(ServerLevel level, Vec3 start, Vec3 end, double width, RandomSource random) {
