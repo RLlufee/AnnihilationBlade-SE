@@ -6,7 +6,8 @@
   "refmap": "annihilationblade.refmap.json",
   "mixins": [],
   "client": [
-    "GuiGraphicsMixin"
+    "GuiGraphicsMixin",
+    "LightTextureMixin"
   ],
   "server": []
 }
