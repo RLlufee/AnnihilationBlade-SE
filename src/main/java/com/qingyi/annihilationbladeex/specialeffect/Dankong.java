@@ -19,7 +19,6 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import com.qingyi.annihilationbladeex.AnnihilationBladeEX;
-import com.qingyi.annihilationbladeex.ItemAnnihilationBlade;
 import com.qingyi.annihilationbladeex.TerminusLogic;
 import com.qingyi.annihilationbladeex.ModSpecialEffects;
 import com.qingyi.annihilationbladeex.visual.AnnihilationVisuals;
@@ -47,6 +46,11 @@ public class Dankong extends SpecialEffect {
         return ACTIVE.containsKey(player.getUUID());
     }
 
+    public static void clearPlayer(UUID playerId) {
+        ACTIVE.remove(playerId);
+        LAST_TRIGGER.remove(playerId);
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onDoingSlash(SlashBladeEvent.DoSlashEvent event) {
         if (!(event.getUser() instanceof ServerPlayer player)) return;
@@ -58,14 +62,12 @@ public class Dankong extends SpecialEffect {
         if (ACTIVE.containsKey(player.getUUID())) return;
 
         long gameTime = player.level().getGameTime();
-        long last = LAST_TRIGGER.getOrDefault(player.getUUID(), -COOLDOWN_TICKS * 2L);
-        if (gameTime - last < COOLDOWN_TICKS) return;
+        if (!SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, gameTime, COOLDOWN_TICKS)) return;
 
         Vec3 origin = player.position();
         List<UUID> targets = collectTargets(player, origin);
         if (targets.isEmpty()) return;
 
-        LAST_TRIGGER.put(player.getUUID(), gameTime);
         ACTIVE.put(player.getUUID(), new Sequence(origin, player.getYRot(), player.getXRot(), targets));
         AnnihilationVisuals.spawnBlinkGate(player.serverLevel(), origin.add(0.0D, 1.0D, 0.0D), 2.0D);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -105,11 +107,12 @@ public class Dankong extends SpecialEffect {
         List<LivingEntity> entities = player.serverLevel().getEntitiesOfClass(
                 LivingEntity.class,
                 area,
-                entity -> canTarget(player, entity) && distanceToBoxSqr(origin, entity.getBoundingBox()) <= RANGE * RANGE
+                entity -> SpecialEffectSupport.canTarget(player, entity)
+                        && SpecialEffectSupport.distanceToBoxSqr(origin, entity.getBoundingBox()) <= RANGE * RANGE
         );
         entities.sort((a, b) -> Double.compare(
-                distanceToBoxSqr(origin, b.getBoundingBox()),
-                distanceToBoxSqr(origin, a.getBoundingBox())
+                SpecialEffectSupport.distanceToBoxSqr(origin, b.getBoundingBox()),
+                SpecialEffectSupport.distanceToBoxSqr(origin, a.getBoundingBox())
         ));
 
         List<UUID> result = new ArrayList<>();
@@ -120,24 +123,8 @@ public class Dankong extends SpecialEffect {
         return result;
     }
 
-    private static double distanceToBoxSqr(Vec3 point, AABB box) {
-        double dx = distanceToAxis(point.x, box.minX, box.maxX);
-        double dy = distanceToAxis(point.y, box.minY, box.maxY);
-        double dz = distanceToAxis(point.z, box.minZ, box.maxZ);
-        return dx * dx + dy * dy + dz * dz;
-    }
-
-    private static double distanceToAxis(double value, double min, double max) {
-        if (value < min) return min - value;
-        if (value > max) return value - max;
-        return 0.0D;
-    }
-
     private static LivingEntity findTarget(ServerLevel level, UUID uuid) {
-        if (level.getEntity(uuid) instanceof LivingEntity target) {
-            return target;
-        }
-        return null;
+        return SpecialEffectSupport.findLivingEntity(level, uuid);
     }
 
     private static void strikeTarget(ServerLevel level, ServerPlayer player, LivingEntity target, Vec3 origin) {
@@ -166,14 +153,7 @@ public class Dankong extends SpecialEffect {
     }
 
     private static boolean canTarget(Player player, LivingEntity candidate) {
-        if (candidate == player) return false;
-        if (!candidate.isAlive()) return false;
-        if (candidate.isAlliedTo(player)) return false;
-        if (candidate instanceof Player other) {
-            if (other.isCreative() || other.isSpectator()) return false;
-            return !AnnihilationBladeEX.hasGodBlade(other);
-        }
-        return true;
+        return SpecialEffectSupport.canTarget(player, candidate);
     }
 
     private static float yawToFace(Vec3 from, Vec3 to) {

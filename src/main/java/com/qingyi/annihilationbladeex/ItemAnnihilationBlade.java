@@ -34,7 +34,9 @@ public class ItemAnnihilationBlade extends ItemSlashBlade {
     @Override
     public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        AnnihilationBladeEX.refreshHeldGodBlade(stack, entity);
+        if (!level.isClientSide() && entity.tickCount % 20 == 0) {
+            AnnihilationBladeEX.refreshHeldGodBlade(stack, entity);
+        }
     }
 
     @Override

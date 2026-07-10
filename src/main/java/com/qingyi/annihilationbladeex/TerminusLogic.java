@@ -22,7 +22,7 @@ public class TerminusLogic {
     }
 
     public static void execute(LivingEntity target, Player attacker) {
-        if (target.level().isClientSide() || !target.isAlive()) {
+        if (target.level().isClientSide() || !SlashBladeTargeting.canAttack(attacker, target)) {
             return;
         }
         target.invulnerableTime = 0;

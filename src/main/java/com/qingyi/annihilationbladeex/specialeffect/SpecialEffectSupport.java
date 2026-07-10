@@ -1,11 +1,13 @@
 package com.qingyi.annihilationbladeex.specialeffect;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.qingyi.annihilationbladeex.AnnihilationBladeEX;
+import com.qingyi.annihilationbladeex.SlashBladeTargeting;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,16 +36,12 @@ final class SpecialEffectSupport {
     }
 
     static boolean canTarget(Player player, LivingEntity candidate) {
-        if (candidate == player || !candidate.isAlive() || candidate.isAlliedTo(player)) {
-            return false;
-        }
-        if (candidate instanceof Player other) {
-            if (other.isCreative() || other.isSpectator()) {
-                return false;
-            }
-            return !AnnihilationBladeEX.hasGodBlade(other);
-        }
-        return true;
+        return SlashBladeTargeting.canAttack(player, candidate);
+    }
+
+    static LivingEntity findLivingEntity(ServerLevel level, UUID uuid) {
+        Entity entity = level.getEntity(uuid);
+        return entity instanceof LivingEntity living ? living : null;
     }
 
     static Vec3 centerOf(LivingEntity entity) {
@@ -126,6 +124,23 @@ final class SpecialEffectSupport {
         Vec3 pull = delta.normalize().scale(strength);
         target.push(pull.x, Math.max(0.04D, pull.y * 0.25D + 0.04D), pull.z);
         target.hasImpulse = true;
+    }
+
+    static double distanceToBoxSqr(Vec3 point, AABB box) {
+        double dx = distanceToAxis(point.x, box.minX, box.maxX);
+        double dy = distanceToAxis(point.y, box.minY, box.maxY);
+        double dz = distanceToAxis(point.z, box.minZ, box.maxZ);
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    private static double distanceToAxis(double value, double min, double max) {
+        if (value < min) {
+            return min - value;
+        }
+        if (value > max) {
+            return value - max;
+        }
+        return 0.0D;
     }
 
     private static Vec3 safeNormalize(Vec3 vector, Vec3 fallback) {

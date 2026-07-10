@@ -1,0 +1,17 @@
+{
+  "name": "annihilationbladeex:blood_prison",
+  "properties": {
+    "attack_base": 8.0,
+    "max_damage": 1800,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "ninja",
+    "model": "annihilationbladeex:model/blood_prison.obj",
+    "texture": "annihilationbladeex:model/blood_prison.png",
+    "summon_sword_color": 16711680
+  },
+  "creativeGroup": "annihilationbladeex:slashblade_tab"
+}
