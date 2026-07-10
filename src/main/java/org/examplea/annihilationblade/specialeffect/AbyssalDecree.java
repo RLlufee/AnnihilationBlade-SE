@@ -9,14 +9,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.examplea.annihilationblade.Annihilationblade;
-import org.examplea.annihilationblade.item.ItemAnnihilationBlade;
 import org.examplea.annihilationblade.logic.TerminusLogic;
 import org.examplea.annihilationblade.registry.ModSpecialEffects;
 import org.examplea.annihilationblade.visual.AnnihilationVisuals;
@@ -40,6 +37,11 @@ public class AbyssalDecree extends SpecialEffect {
 
     public AbyssalDecree() {
         super(0, false, false);
+    }
+
+    public static void clearPlayer(UUID playerId) {
+        ACTIVE.remove(playerId);
+        LAST_TRIGGER.remove(playerId);
     }
 
     @SubscribeEvent
@@ -85,7 +87,7 @@ public class AbyssalDecree extends SpecialEffect {
 
         while (sequence.index < sequence.targets.size()) {
             LivingEntity target = findTarget(level, sequence.targets.get(sequence.index++));
-            if (target == null || !canTarget(player, target)) continue;
+            if (target == null || !SpecialEffectSupport.canTarget(player, target)) continue;
 
             strike(level, player, target, crown, sequence.index);
             return;
@@ -97,13 +99,7 @@ public class AbyssalDecree extends SpecialEffect {
     }
 
     private static List<UUID> collectTargets(ServerPlayer player) {
-        Vec3 origin = player.position();
-        AABB area = new AABB(origin, origin).inflate(RANGE);
-        List<LivingEntity> entities = player.serverLevel().getEntitiesOfClass(
-                LivingEntity.class,
-                area,
-                entity -> canTarget(player, entity) && entity.distanceToSqr(player) <= RANGE * RANGE
-        );
+        List<LivingEntity> entities = SpecialEffectSupport.radialTargets(player.serverLevel(), player, player.position(), RANGE);
         entities.sort(Comparator
                 .comparingDouble((LivingEntity entity) -> entity.getHealth() + entity.getArmorValue() * 2.0D)
                 .reversed()
@@ -132,21 +128,7 @@ public class AbyssalDecree extends SpecialEffect {
     }
 
     private static LivingEntity findTarget(ServerLevel level, UUID uuid) {
-        if (level.getEntity(uuid) instanceof LivingEntity target) {
-            return target;
-        }
-        return null;
-    }
-
-    private static boolean canTarget(Player player, LivingEntity candidate) {
-        if (candidate == player) return false;
-        if (!candidate.isAlive()) return false;
-        if (candidate.isAlliedTo(player)) return false;
-        if (candidate instanceof Player other) {
-            if (other.isCreative() || other.isSpectator()) return false;
-            return !(other.getMainHandItem().getItem() instanceof ItemAnnihilationBlade);
-        }
-        return true;
+        return SpecialEffectSupport.findLivingEntity(level, uuid);
     }
 
     private static void spawnCrown(ServerLevel level, Vec3 center, double radius, int tick) {

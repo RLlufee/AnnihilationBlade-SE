@@ -47,7 +47,7 @@ public class ItemAnnihilationCore extends Item {
     }
 
     private static ItemStack getGodBladeFromManager() {
-        ItemStack stack = Annihilationblade.getNamedBladeFromManager("annihilation_blade");
+        ItemStack stack = Annihilationblade.createGodBladeStack();
         if (!stack.isEmpty()) {
             Annihilationblade.applyGodStats(stack);
         }

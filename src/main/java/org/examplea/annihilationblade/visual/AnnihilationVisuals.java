@@ -93,16 +93,16 @@ public final class AnnihilationVisuals {
         double radius = Math.max(0.9D, target.getBbWidth() * 1.65D);
         spawnWhiteExecutionCircle(level, target, radius);
         level.sendParticles(ParticleTypes.FLASH, center.x, center.y, center.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
-        level.sendParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 24, radius * 0.38D, radius * 0.55D, radius * 0.38D, 0.22D);
-        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, center.x, center.y, center.z, 10, radius * 0.26D, radius * 0.36D, radius * 0.26D, 0.03D);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, center.x, center.y, center.z, 16, radius * 0.38D, radius * 0.55D, radius * 0.38D, 0.22D);
+        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, center.x, center.y, center.z, 6, radius * 0.26D, radius * 0.36D, radius * 0.26D, 0.03D);
 
-        spawnRing(level, center, X_AXIS, Z_AXIS, radius * 1.2D, VOID_PURPLE, 28, 0.006D);
-        spawnRing(level, center, X_AXIS, UP, radius * 1.05D, COSMIC_CYAN, 24, 0.006D);
-        spawnRing(level, center, Z_AXIS, UP, radius * 1.05D, TERMINUS_GOLD, 24, 0.006D);
-        spawnLine(level, center.add(-radius, radius * 0.9D, -radius), center.add(radius, -radius * 0.9D, radius), COSMIC_CYAN, 10, 0.01D);
-        spawnLine(level, center.add(radius, radius * 0.9D, -radius), center.add(-radius, -radius * 0.9D, radius), VOID_PURPLE, 10, 0.01D);
+        spawnRing(level, center, X_AXIS, Z_AXIS, radius * 1.2D, VOID_PURPLE, 20, 0.006D);
+        spawnRing(level, center, X_AXIS, UP, radius * 1.05D, COSMIC_CYAN, 18, 0.006D);
+        spawnRing(level, center, Z_AXIS, UP, radius * 1.05D, TERMINUS_GOLD, 18, 0.006D);
+        spawnLine(level, center.add(-radius, radius * 0.9D, -radius), center.add(radius, -radius * 0.9D, radius), COSMIC_CYAN, 7, 0.01D);
+        spawnLine(level, center.add(radius, radius * 0.9D, -radius), center.add(-radius, -radius * 0.9D, radius), VOID_PURPLE, 7, 0.01D);
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             Vec3 dir = randomUnit(random);
             spawnLine(level, center, center.add(dir.scale(radius * (1.2D + random.nextDouble() * 0.9D))), ParticleTypes.ELECTRIC_SPARK, 5, 0.018D);
         }
@@ -112,26 +112,26 @@ public final class AnnihilationVisuals {
         Vec3 foot = target.position().add(0.0D, 0.06D, 0.0D);
         double radius = Math.max(1.15D, targetRadius * 1.55D);
 
-        spawnRing(level, foot, X_AXIS, Z_AXIS, radius, ParticleTypes.END_ROD, 96, 0.002D);
-        spawnRing(level, foot.add(0.0D, 0.03D, 0.0D), X_AXIS, Z_AXIS, radius * 0.72D, ParticleTypes.FIREWORK, 72, 0.002D);
-        spawnRing(level, foot.add(0.0D, 0.06D, 0.0D), X_AXIS, Z_AXIS, radius * 0.42D, ParticleTypes.END_ROD, 48, 0.001D);
+        spawnRing(level, foot, X_AXIS, Z_AXIS, radius, ParticleTypes.END_ROD, 64, 0.002D);
+        spawnRing(level, foot.add(0.0D, 0.03D, 0.0D), X_AXIS, Z_AXIS, radius * 0.72D, ParticleTypes.FIREWORK, 48, 0.002D);
+        spawnRing(level, foot.add(0.0D, 0.06D, 0.0D), X_AXIS, Z_AXIS, radius * 0.42D, ParticleTypes.END_ROD, 32, 0.001D);
 
         for (int i = 0; i < 6; i++) {
             double a = TAU * i / 6.0D;
             double b = a + TAU / 3.0D;
             Vec3 start = foot.add(Math.cos(a) * radius * 0.88D, 0.08D, Math.sin(a) * radius * 0.88D);
             Vec3 end = foot.add(Math.cos(b) * radius * 0.88D, 0.08D, Math.sin(b) * radius * 0.88D);
-            spawnLine(level, start, end, ParticleTypes.END_ROD, 18, 0.001D);
+            spawnLine(level, start, end, ParticleTypes.END_ROD, 12, 0.001D);
         }
 
         for (int i = 0; i < 12; i++) {
             double angle = TAU * i / 12.0D;
             Vec3 inner = foot.add(Math.cos(angle) * radius * 0.28D, 0.1D, Math.sin(angle) * radius * 0.28D);
             Vec3 outer = foot.add(Math.cos(angle) * radius, 0.1D, Math.sin(angle) * radius);
-            spawnLine(level, inner, outer, i % 2 == 0 ? ParticleTypes.END_ROD : ParticleTypes.FIREWORK, 7, 0.001D);
+            spawnLine(level, inner, outer, i % 2 == 0 ? ParticleTypes.END_ROD : ParticleTypes.FIREWORK, 5, 0.001D);
         }
 
-        level.sendParticles(ParticleTypes.END_ROD, foot.x, foot.y + 0.16D, foot.z, 28, radius * 0.34D, 0.02D, radius * 0.34D, 0.018D);
+        level.sendParticles(ParticleTypes.END_ROD, foot.x, foot.y + 0.16D, foot.z, 18, radius * 0.34D, 0.02D, radius * 0.34D, 0.018D);
         level.sendParticles(ParticleTypes.FLASH, foot.x, foot.y + 0.18D, foot.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
     }
 

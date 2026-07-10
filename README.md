@@ -1,4 +1,4 @@
-# Annihilation Blade · Terminus 2.4.5-1.20.1-forge
+# Annihilation Blade · Terminus 2.4.8-1.20.1-forge
 
 > 基于 SlashBlade 的拔刀剑扩展模组，围绕“终焉”“裂界”“坍缩”“审判”主题构建一把主刀和一组风格统一的 SA / SE 组合。
 
@@ -22,6 +22,8 @@ Annihilation Blade 提供了一把主武器 `annihilationblade:annihilation_blad
 - `Phantom Judgement` 使用真实召唤剑实体表现
 - `World Rift`、`Causality Collapse`、`Starless Judgement` 已拆出共用支撑逻辑，导包更轻，效果主体更清晰
 - `Spatial Fracture` 作为主 SA，承担大范围终结演出
+- 湮灭之刃位于背包、主手或副手时，会在客户端获得夜视
+- 所有普攻、SA 与 SE 的目标判定统一遵循 SlashBlade 的 `pvp_enable` 与 `friendly_enable` 配置，默认不会伤及玩家、宠物和非敌对单位
 
 ## 武器
 

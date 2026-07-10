@@ -30,6 +30,10 @@ public class CausalityCollapse extends SpecialEffect {
         super(0, false, false);
     }
 
+    public static void clearPlayer(UUID playerId) {
+        LAST_TRIGGER.remove(playerId);
+    }
+
     @SubscribeEvent
     public static void onSlashBladeHit(SlashBladeEvent.HitEvent event) {
         ISlashBladeState state = event.getSlashBladeState();

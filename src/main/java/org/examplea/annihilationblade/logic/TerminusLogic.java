@@ -23,7 +23,7 @@ public class TerminusLogic {
 
     // Execute through a real player damage source first so SlashBlade's KillCounter sees the death.
     public static void execute(LivingEntity target, Player attacker) {
-        if (target.level().isClientSide || !target.isAlive()) return;
+        if (target.level().isClientSide || !SlashBladeTargeting.canAttack(attacker, target)) return;
 
         target.invulnerableTime = 0;
         DamageSource source = target.level().damageSources().playerAttack(attacker);

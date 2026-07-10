@@ -1,10 +1,8 @@
 package org.examplea.annihilationblade;
 
 import com.mojang.logging.LogUtils;
-import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,11 +16,14 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import org.examplea.annihilationblade.client.ClientBladeLookup;
 import org.examplea.annihilationblade.registry.ModComboStates;
 import org.examplea.annihilationblade.registry.ModItems;
 import org.examplea.annihilationblade.registry.ModSlashArts;
@@ -72,7 +73,7 @@ public class Annihilationblade {
                         if (!godSword.isEmpty()) {
                             output.accept(godSword);
                         }
-                        ItemStack bloodPrison = getNamedBladeFromManager(BLOOD_PRISON_NAME);
+                        ItemStack bloodPrison = getNamedBladeStack(BLOOD_PRISON_NAME);
                         if (!bloodPrison.isEmpty()) {
                             output.accept(bloodPrison);
                         }
@@ -93,27 +94,36 @@ public class Annihilationblade {
     }
 
     private static ItemStack getGodBladeFromManager() {
-        ItemStack stack = getNamedBladeFromManager(ANNIHILATION_BLADE_NAME);
+        ItemStack stack = getNamedBladeStack(ANNIHILATION_BLADE_NAME);
         if (!stack.isEmpty()) {
             applyGodStats(stack);
         }
         return stack;
     }
 
-    public static ItemStack getNamedBladeFromManager(String bladeName) {
-        if (Minecraft.getInstance().getConnection() != null) {
-            var registry = BladeModelManager.getClientSlashBladeRegistry();
-            for (var entry : registry.entrySet()) {
-                if (entry.getKey() == null) {
-                    continue;
-                }
-                ResourceLocation id = entry.getKey().location();
-                if (id.getNamespace().equals(MODID) && id.getPath().equals(bladeName)) {
-                    return entry.getValue().getBlade().copy();
-                }
-            }
+    public static ItemStack getNamedBladeStack(String bladeName) {
+        ItemStack clientStack = getClientNamedBladeStack(bladeName);
+        if (!clientStack.isEmpty()) {
+            return clientStack;
+        }
+        if (ANNIHILATION_BLADE_NAME.equals(bladeName)) {
+            return createGodBladeStack();
         }
         return ItemStack.EMPTY;
+    }
+
+    private static ItemStack getClientNamedBladeStack(String bladeName) {
+        ItemStack stack = DistExecutor.unsafeCallWhenOn(
+                Dist.CLIENT,
+                () -> () -> ClientBladeLookup.getNamedBladeFromManager(bladeName)
+        );
+        return stack == null ? ItemStack.EMPTY : stack;
+    }
+
+    public static ItemStack createGodBladeStack() {
+        ItemStack stack = new ItemStack(ModItems.ANNIHILATION_BLADE.get());
+        applyGodStats(stack);
+        return stack;
     }
 
     public static void applyGodStats(ItemStack stack) {

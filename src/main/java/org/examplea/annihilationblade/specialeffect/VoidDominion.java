@@ -6,13 +6,10 @@ import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.examplea.annihilationblade.Annihilationblade;
-import org.examplea.annihilationblade.item.ItemAnnihilationBlade;
 import org.examplea.annihilationblade.logic.TerminusLogic;
 import org.examplea.annihilationblade.registry.ModSpecialEffects;
 import org.examplea.annihilationblade.visual.AnnihilationVisuals;
@@ -30,6 +27,10 @@ public class VoidDominion extends SpecialEffect {
 
     public VoidDominion() {
         super(0, false, false);
+    }
+
+    public static void clearPlayer(UUID playerId) {
+        LAST_TRIGGER.remove(playerId);
     }
 
     @SubscribeEvent
@@ -54,12 +55,10 @@ public class VoidDominion extends SpecialEffect {
         AnnihilationVisuals.spawnFractureWeb(level, center, RANGE * 0.78D, player.getRandom());
 
         int count = 0;
-        AABB area = new AABB(center, center).inflate(RANGE);
-        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, area, entity -> canTarget(player, entity))) {
+        for (LivingEntity target : SpecialEffectSupport.radialTargets(level, player, center, RANGE)) {
             if (count >= MAX_TARGETS) break;
 
-            Vec3 targetCenter = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-            if (targetCenter.distanceToSqr(center) > RANGE * RANGE) continue;
+            Vec3 targetCenter = SpecialEffectSupport.centerOf(target);
 
             AnnihilationVisuals.spawnSlashBridge(level, center, targetCenter, 1.4D, player.getRandom());
             AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
@@ -68,16 +67,5 @@ public class VoidDominion extends SpecialEffect {
         }
 
         AnnihilationVisuals.spawnCollapsePulse(level, center, RANGE * 0.72D, count);
-    }
-
-    private static boolean canTarget(Player player, LivingEntity candidate) {
-        if (candidate == player) return false;
-        if (!candidate.isAlive()) return false;
-        if (candidate.isAlliedTo(player)) return false;
-        if (candidate instanceof Player other) {
-            if (other.isCreative() || other.isSpectator()) return false;
-            return !(other.getMainHandItem().getItem() instanceof ItemAnnihilationBlade);
-        }
-        return true;
     }
 }

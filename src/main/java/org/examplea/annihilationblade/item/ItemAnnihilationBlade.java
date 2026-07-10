@@ -28,6 +28,8 @@ public class ItemAnnihilationBlade extends ItemSlashBlade {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        Annihilationblade.ensureGodStats(stack);
+        if (!level.isClientSide && entity.tickCount % 20 == 0) {
+            Annihilationblade.ensureGodStats(stack);
+        }
     }
 }

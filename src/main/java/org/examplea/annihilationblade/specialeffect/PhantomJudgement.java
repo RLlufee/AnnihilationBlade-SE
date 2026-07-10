@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -33,10 +34,11 @@ import java.util.UUID;
 public class PhantomJudgement extends SpecialEffect {
     private static final double RANGE = 40.0D;
     private static final int SEARCH_TICKS = 20;
-    private static final int SWORD_COUNT = 10;
-    private static final int RAIN_SWORDS_PER_TARGET = 10;
-    private static final int LINGER_TICKS = 100;
-    private static final int MAX_TARGETS = 48;
+    private static final int SWORD_COUNT = 8;
+    private static final int RAIN_SWORDS_PER_TARGET = 6;
+    private static final int LINGER_TICKS = 60;
+    private static final int MAX_TARGETS = 24;
+    private static final int MAX_LINGERING_SWORDS = 96;
     private static final int COOLDOWN_TICKS = 44;
     private static final double TAU = Math.PI * 2.0D;
     private static final Map<UUID, Sequence> ACTIVE = new HashMap<>();
@@ -45,6 +47,23 @@ public class PhantomJudgement extends SpecialEffect {
 
     public PhantomJudgement() {
         super(0, false, false);
+    }
+
+    public static void clearPlayer(Level level, UUID playerId) {
+        ServerLevel serverLevel = level instanceof ServerLevel server ? server : null;
+        Sequence sequence = ACTIVE.remove(playerId);
+        if (serverLevel != null && sequence != null) {
+            discardSearchSwords(serverLevel, sequence);
+        }
+
+        List<LingeringSword> lingering = LINGERING.remove(playerId);
+        if (serverLevel != null && lingering != null) {
+            for (LingeringSword sword : lingering) {
+                discardLingering(serverLevel, sword);
+            }
+        }
+
+        LAST_TRIGGER.remove(playerId);
     }
 
     @SubscribeEvent
@@ -105,11 +124,11 @@ public class PhantomJudgement extends SpecialEffect {
             Vec3 tangent = new Vec3(-Math.sin(next), 0.16D * Math.cos(age * 0.2D + i), Math.cos(next)).normalize();
             EntityAbstractSummonedSword sword = getOrCreateSearchSword(level, player, sequence, i);
             placeSummonedSword(sword, orbit, tangent, sequence.color);
-            level.sendParticles(ParticleTypes.ENCHANT, orbit.x, orbit.y, orbit.z, 4, 0.06D, 0.06D, 0.06D, 0.0D);
+            level.sendParticles(ParticleTypes.ENCHANT, orbit.x, orbit.y, orbit.z, 2, 0.06D, 0.06D, 0.06D, 0.0D);
         }
 
         if (age % 4 == 0) {
-            level.sendParticles(ParticleTypes.END_ROD, center.x, center.y + 0.3D, center.z, 18, radius * 0.55D, 0.28D, radius * 0.55D, 0.02D);
+            level.sendParticles(ParticleTypes.END_ROD, center.x, center.y + 0.3D, center.z, 10, radius * 0.55D, 0.28D, radius * 0.55D, 0.02D);
         }
     }
 
@@ -247,14 +266,16 @@ public class PhantomJudgement extends SpecialEffect {
     }
 
     private static LivingEntity findTarget(ServerLevel level, UUID uuid) {
-        Entity entity = level.getEntity(uuid);
-        return entity instanceof LivingEntity living ? living : null;
+        return SpecialEffectSupport.findLivingEntity(level, uuid);
     }
 
     private static void addLingeringSword(ServerPlayer player, Vec3 ground, Vec3 fallDirection, int color, int index) {
         Vec3 direction = fallDirection.lengthSqr() < 1.0E-6D ? new Vec3(0.0D, -1.0D, 0.0D) : fallDirection.normalize();
-        LINGERING.computeIfAbsent(player.getUUID(), ignored -> new ArrayList<>())
-                .add(new LingeringSword(ground, direction, color, index * 27.0F));
+        List<LingeringSword> swords = LINGERING.computeIfAbsent(player.getUUID(), ignored -> new ArrayList<>());
+        if (swords.size() >= MAX_LINGERING_SWORDS) {
+            return;
+        }
+        swords.add(new LingeringSword(ground, direction, color, index * 27.0F));
     }
 
     private static void tickLingeringSwords(ServerLevel level, ServerPlayer player) {

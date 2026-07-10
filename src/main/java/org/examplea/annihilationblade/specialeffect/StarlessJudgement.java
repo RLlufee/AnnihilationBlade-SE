@@ -31,6 +31,10 @@ public class StarlessJudgement extends SpecialEffect {
         super(0, false, false);
     }
 
+    public static void clearPlayer(UUID playerId) {
+        LAST_TRIGGER.remove(playerId);
+    }
+
     @SubscribeEvent
     public static void onDoingSlash(SlashBladeEvent.DoSlashEvent event) {
         if (!(event.getUser() instanceof ServerPlayer player)) return;
