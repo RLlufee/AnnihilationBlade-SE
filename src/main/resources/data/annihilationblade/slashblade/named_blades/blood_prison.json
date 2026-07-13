@@ -2,9 +2,22 @@
   "name": "annihilationblade:blood_prison",
   "model_name": "annihilationblade:model/blood_prison.obj",
   "texture_name": "annihilationblade:model/blood_prison.png",
+  "enchantments": {
+    "minecraft:unbreaking": 10,
+    "minecraft:mending": 10,
+    "minecraft:sharpness": 10
+  },
   "properties": {
-    "attack_base": 8.0,
-    "max_damage": 1800,
+    "attack_base": 16.0,
+    "max_damage": 2400,
+    "slash_art": "annihilationblade:infernal_slaughter",
+    "special_effects": [
+      "annihilationblade:blood_leech",
+      "annihilationblade:spirit_shield",
+      "annihilationblade:phantom_mark",
+      "slashblade:wither_edge"
+    ],
+    "unbreakable": true,
     "sword_type": [
       "bewitched"
     ],
