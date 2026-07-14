@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/"
 
 [[mods]]
 modId="annihilationblade"
-version="2.5.0-1.20.1-forge"
+version="${mod_version}"
 displayName="Annihilation Blade · Terminus"
 authors="青衣_璃"
 description='''
@@ -15,7 +15,7 @@ description='''
 Features:
 - Spatial Fracture SA
 - Severed Space / World Rift / Causality Collapse / Starless Judgement / Phantom Judgement / Abyssal Decree SE
-- Absolute execution, absolute aegis, void flight, blade-bound night vision
+- Absolute execution, absolute aegis, void flight, blade-bound gamma fullbright
 '''
 logoFile="icon.png"
 

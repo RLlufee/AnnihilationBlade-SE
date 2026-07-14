@@ -1,19 +1,17 @@
 {
   "name": "annihilationblade:annihilation_blade",
-  "model_name": "annihilationblade:model/blade.obj",
-  "texture_name": "annihilationblade:model/blade.png",
-  "enchantments": {
-    "minecraft:sharpness": 10,
-    "minecraft:fire_aspect": 10,
-    "minecraft:smite": 10,
-    "minecraft:bane_of_arthropods": 10,
-    "minecraft:looting": 10,
-    "minecraft:sweeping": 10,
-    "minecraft:power": 10,
-    "minecraft:unbreaking": 10,
-    "minecraft:mending": 10,
-    "minecraft:thorns": 10
-  },
+  "enchantments": [
+    { "id": "minecraft:sharpness", "lvl": 10 },
+    { "id": "minecraft:fire_aspect", "lvl": 10 },
+    { "id": "minecraft:smite", "lvl": 10 },
+    { "id": "minecraft:bane_of_arthropods", "lvl": 10 },
+    { "id": "minecraft:looting", "lvl": 10 },
+    { "id": "minecraft:sweeping", "lvl": 10 },
+    { "id": "minecraft:power", "lvl": 10 },
+    { "id": "minecraft:unbreaking", "lvl": 10 },
+    { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:thorns", "lvl": 10 }
+  ],
   "properties": {
     "attack_base": 50.0,
     "max_damage": 2000,
@@ -30,17 +28,12 @@
     ],
     "sword_type": [
       "bewitched"
-    ],
-    "default_grip": {
-      "scale": [0.05, 0.05, 0.05],
-      "rotate": [0.0, 0.0, 0.0],
-      "translate": [0.0, 0.0, 0.0]
-    }
+    ]
   },
   "render": {
     "carry_type": "ninja",
-    "model": "annihilationblade:model/blade.obj",
-    "texture": "annihilationblade:model/blade.png",
+    "model": "annihilationblade:model/annihilation_blade.obj",
+    "texture": "annihilationblade:model/annihilation_blade.png",
     "summon_sword_color": 11141375
   }
 }

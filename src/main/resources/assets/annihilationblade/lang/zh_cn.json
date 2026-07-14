@@ -4,6 +4,11 @@
   "item.annihilationblade.annihilation_core": "§5湮灭核心§8·§d终焉之钥",
   "item.annihilationblade.annihilation_fragment": "§5湮灭碎片§8·§7星骸残响",
   "item.annihilationblade.tab_title": "§5湮灭之刃§8｜§d终焉权柄",
+  "key.categories.annihilationblade": "湮灭之刃",
+  "key.annihilationblade.toggle_dankong_blink": "切换断空闪现模式",
+  "message.annihilationblade.dankong_blink_toggle": "§d切换断空闪现模式§8：§7当前闪现：%s",
+  "message.annihilationblade.dankong_blink.on": "§a开",
+  "message.annihilationblade.dankong_blink.off": "§c关",
 
   "slashblade.slash_art.annihilationblade.spatial_fracture": "§5§l空间破碎§8·§d万象裂隙",
   "annihilationblade.slash_arts.spatial_fracture": "§5§l空间破碎§8·§d万象裂隙",

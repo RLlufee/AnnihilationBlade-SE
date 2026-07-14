@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
+import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = "annihilationblade")
 public class CausalityCollapse extends SpecialEffect {
-   private static final double CHAIN_RADIUS = 14.0;
-   private static final int MAX_CHAIN = 18;
-   private static final int COOLDOWN_TICKS = 10;
    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
 
    public CausalityCollapse() {
@@ -41,8 +39,9 @@ public class CausalityCollapse extends SpecialEffect {
             LivingEntity firstTarget = event.getTarget();
             if (firstTarget != null) {
                if (firstTarget.level() instanceof ServerLevel level) {
-                  if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, level.getGameTime(), 10)) {
-                     List<LivingEntity> chain = SpecialEffectSupport.nearestChain(level, player, firstTarget, 14.0, 18);
+                  ModConfig.CausalityCollapse config = ModConfig.COMMON.annihilationBlade.causalityCollapse;
+                  if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, level.getGameTime(), config.cooldownTicks.get())) {
+                     List<LivingEntity> chain = SpecialEffectSupport.nearestChain(level, player, firstTarget, config.chainRadius.get(), config.maxChain.get());
                      if (!chain.isEmpty()) {
                         Vec3 previous = player.getEyePosition();
 
@@ -60,7 +59,7 @@ public class CausalityCollapse extends SpecialEffect {
                            previous = targetCenter;
                         }
 
-                        AnnihilationVisuals.spawnCollapsePulse(level, previous, 7.700000000000001, chain.size());
+                        AnnihilationVisuals.spawnCollapsePulse(level, previous, config.chainRadius.get() * 0.55 * config.visualScale.get(), chain.size());
                      }
                   }
                }

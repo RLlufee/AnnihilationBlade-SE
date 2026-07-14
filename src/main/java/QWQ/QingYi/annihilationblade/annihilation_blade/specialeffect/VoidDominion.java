@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
+import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,9 +20,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = "annihilationblade")
 public class VoidDominion extends SpecialEffect {
-   private static final double RANGE = 26.0;
-   private static final int MAX_TARGETS = 64;
-   private static final int COOLDOWN_TICKS = 70;
    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
 
    public VoidDominion() {
@@ -38,20 +36,23 @@ public class VoidDominion extends SpecialEffect {
          if (!Dankong.isActive(player)) {
             ISlashBladeState state = event.getSlashBladeState();
             if (state.hasSpecialEffect(ModSpecialEffects.VOID_DOMINION.getId())) {
+               ModConfig.VoidDominion config = ModConfig.COMMON.annihilationBlade.voidDominion;
                long gameTime = player.level().getGameTime();
-               long last = LAST_TRIGGER.getOrDefault(player.getUUID(), -140L);
-               if (gameTime - last >= 70L) {
+               long last = LAST_TRIGGER.getOrDefault(player.getUUID(), -config.cooldownTicks.get() * 2L);
+               if (gameTime - last >= config.cooldownTicks.get()) {
                   LAST_TRIGGER.put(player.getUUID(), gameTime);
                   ServerLevel level = player.serverLevel();
+                  double range = config.range.get();
+                  double visualScale = config.visualScale.get();
                   Vec3 direction = player.getLookAngle().normalize();
                   Vec3 center = player.getEyePosition().add(direction.scale(10.0));
-                  AnnihilationVisuals.spawnOpeningHalo(level, center, 16.12);
-                  AnnihilationVisuals.spawnWorldRiftBloom(level, center, 10.92);
-                  AnnihilationVisuals.spawnFractureWeb(level, center, 20.28, player.getRandom());
+                  AnnihilationVisuals.spawnOpeningHalo(level, center, range * 0.62 * visualScale);
+                  AnnihilationVisuals.spawnWorldRiftBloom(level, center, range * 0.42 * visualScale);
+                  AnnihilationVisuals.spawnFractureWeb(level, center, range * 0.78 * visualScale, player.getRandom());
                   int count = 0;
 
-                  for (LivingEntity target : SpecialEffectSupport.radialTargets(level, player, center, 26.0)) {
-                     if (count >= 64) {
+                  for (LivingEntity target : SpecialEffectSupport.radialTargets(level, player, center, range)) {
+                     if (count >= config.maxTargets.get()) {
                         break;
                      }
 
@@ -62,7 +63,7 @@ public class VoidDominion extends SpecialEffect {
                      count++;
                   }
 
-                  AnnihilationVisuals.spawnCollapsePulse(level, center, 18.72, count);
+                  AnnihilationVisuals.spawnCollapsePulse(level, center, range * 0.72 * visualScale, count);
                }
             }
          }

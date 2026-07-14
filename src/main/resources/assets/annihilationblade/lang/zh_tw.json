@@ -4,6 +4,11 @@
   "item.annihilationblade.annihilation_core": "§5湮滅核心§8·§d終焉之鑰",
   "item.annihilationblade.annihilation_fragment": "§5湮滅碎片§8·§7星骸殘響",
   "item.annihilationblade.tab_title": "§5湮滅之刃§8｜§d終焉權柄",
+  "key.categories.annihilationblade": "湮滅之刃",
+  "key.annihilationblade.toggle_dankong_blink": "切換斷空閃現模式",
+  "message.annihilationblade.dankong_blink_toggle": "§d切換斷空閃現模式§8：§7目前閃現：%s",
+  "message.annihilationblade.dankong_blink.on": "§a開",
+  "message.annihilationblade.dankong_blink.off": "§c關",
 
   "slashblade.slash_art.annihilationblade.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
   "annihilationblade.slash_arts.spatial_fracture": "§5§l空間破碎§8·§d萬象裂隙",
@@ -24,8 +29,11 @@
   "item.annihilationblade.desc.line3": "§8「§d斷空踏影，裂界封喉，歸墟餘響為萬物落款。§8」",
   "item.annihilationblade.desc.line4": "§8「§6執此刃者，無需勝利；結局自會俯首。§8」",
 
- "item.annihilationblade.passive": "§6§l權柄§8：§e絕對庇護 §7/ §b虛空飛行 §7/ §d終焉處決 §7/ §f永晝視界",
+  "item.annihilationblade.passive": "§6§l權柄§8：§e絕對庇護 §7/ §b虛空飛行 §7/ §d終焉處決 §7/ §f永晝視界",
   "item.annihilationblade.infinite_damage": "+∞ 終焉攻擊傷害",
   "item.annihilationblade.annihilation_core.tip": "§d右鍵喚醒終焉之刃",
-  "item.annihilationblade.annihilation_fragment.tip": "§7九枚星骸碎片，可凝成§5湮滅核心"
+  "item.annihilationblade.annihilation_fragment.tip": "§7九枚星骸碎片，可凝成§5湮滅核心",
+
+  "enchantment.level.10": "「§6极限级§r」",
+  "enchantment.level.15": "「§e神威级§r」"
 }

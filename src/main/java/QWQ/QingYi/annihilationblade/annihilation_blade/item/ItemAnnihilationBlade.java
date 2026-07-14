@@ -26,7 +26,7 @@ public class ItemAnnihilationBlade extends ItemSlashBlade {
    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
       super.inventoryTick(stack, level, entity, slotId, isSelected);
       if (!level.isClientSide && entity.tickCount % 20 == 0) {
-         AnnihilationBladeDefinitions.ensureStats(stack);
+         AnnihilationBladeDefinitions.ensureStats(stack, level);
       }
    }
 }

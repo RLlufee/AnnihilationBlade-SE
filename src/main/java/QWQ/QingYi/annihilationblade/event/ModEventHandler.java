@@ -60,7 +60,7 @@ public class ModEventHandler {
       if (!isGodBlade(player.getMainHandItem()) && !isGodBlade(player.getOffhandItem())) {
          UUID id = player.getUUID();
          Integer lastScan = LAST_BLADE_SCAN_TICK.get(id);
-         if (lastScan != null && player.tickCount - lastScan < 10) {
+         if (lastScan != null && player.tickCount - lastScan < INVENTORY_SCAN_INTERVAL) {
             return HAS_BLADE_CACHE.getOrDefault(id, false);
          }
 
@@ -86,17 +86,17 @@ public class ModEventHandler {
    }
 
    private static void refreshBladeGrowthData(Player player) {
-      refreshBladeGrowthData(player.getMainHandItem());
-      refreshBladeGrowthData(player.getOffhandItem());
+      refreshBladeGrowthData(player.getMainHandItem(), player);
+      refreshBladeGrowthData(player.getOffhandItem(), player);
 
       for (ItemStack stack : player.getInventory().items) {
-         refreshBladeGrowthData(stack);
+         refreshBladeGrowthData(stack, player);
       }
    }
 
-   private static void refreshBladeGrowthData(ItemStack stack) {
+   private static void refreshBladeGrowthData(ItemStack stack, Player player) {
       if (isGodBlade(stack)) {
-         AnnihilationBladeDefinitions.ensureStats(stack);
+         AnnihilationBladeDefinitions.ensureStats(stack, player.level());
       }
    }
 
@@ -237,7 +237,7 @@ public class ModEventHandler {
          if (!player.level().isClientSide) {
             UUID key = player.getUUID();
             boolean hasBlade = hasBladeInInventory(player);
-            if (hasBlade && player.tickCount % 20 == 0) {
+            if (hasBlade && player.tickCount % BLADE_REFRESH_INTERVAL == 0) {
                refreshBladeGrowthData(player);
             }
 
@@ -282,6 +282,7 @@ public class ModEventHandler {
    @SubscribeEvent
    public static void onPlayerLogout(PlayerLoggedOutEvent event) {
       clearPlayerState(event.getEntity());
+      Dankong.clearBlinkMode(event.getEntity().getUUID());
    }
 
    @SubscribeEvent

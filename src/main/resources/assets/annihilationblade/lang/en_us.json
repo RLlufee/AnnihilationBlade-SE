@@ -4,6 +4,11 @@
   "item.annihilationblade.annihilation_core": "§5Annihilation Core§8 · §dKey of Terminus",
   "item.annihilationblade.annihilation_fragment": "§5Annihilation Shard§8 · §7Starfall Remnant",
   "item.annihilationblade.tab_title": "§5Annihilation Blade§8 | §dTerminus",
+  "key.categories.annihilationblade": "Annihilation Blade",
+  "key.annihilationblade.toggle_dankong_blink": "Toggle Severed Space Blink",
+  "message.annihilationblade.dankong_blink_toggle": "§dSevered Space blink mode§8: §7Blink: %s",
+  "message.annihilationblade.dankong_blink.on": "§aON",
+  "message.annihilationblade.dankong_blink.off": "§cOFF",
 
   "slashblade.slash_art.annihilationblade.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",
   "annihilationblade.slash_arts.spatial_fracture": "§5§lSpatial Fracture§8 · §dRift of All Things",

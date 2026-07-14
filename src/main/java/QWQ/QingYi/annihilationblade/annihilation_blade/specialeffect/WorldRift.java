@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
+import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
 import java.util.List;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
@@ -17,9 +18,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = "annihilationblade")
 public class WorldRift extends SpecialEffect {
-   private static final double RADIUS = 8.0;
-   private static final int MAX_TARGETS = 24;
-
    public WorldRift() {
       super(0, false, false);
    }
@@ -33,13 +31,16 @@ public class WorldRift extends SpecialEffect {
             if (target != null) {
                if (target.level() instanceof ServerLevel level) {
                   Vec3 var12 = SpecialEffectSupport.centerOf(target);
-                  List<LivingEntity> targets = SpecialEffectSupport.radialTargets(level, player, var12, 8.0);
+                  ModConfig.WorldRift config = ModConfig.COMMON.annihilationBlade.worldRift;
+                  double radius = config.radius.get();
+                  double visualScale = config.visualScale.get();
+                  List<LivingEntity> targets = SpecialEffectSupport.radialTargets(level, player, var12, radius);
                   if (!targets.isEmpty()) {
-                     AnnihilationVisuals.spawnWorldRiftOpening(level, var12, 8.0);
+                     AnnihilationVisuals.spawnWorldRiftOpening(level, var12, radius * visualScale);
                      int count = 0;
 
                      for (LivingEntity entity : targets) {
-                        if (count >= 24) {
+                        if (count >= config.maxTargets.get()) {
                            break;
                         }
 
@@ -51,7 +52,7 @@ public class WorldRift extends SpecialEffect {
                         count++;
                      }
 
-                     AnnihilationVisuals.spawnCollapsePulse(level, var12, 5.76, count);
+                     AnnihilationVisuals.spawnCollapsePulse(level, var12, radius * 0.72 * visualScale, count);
                   }
                }
             }

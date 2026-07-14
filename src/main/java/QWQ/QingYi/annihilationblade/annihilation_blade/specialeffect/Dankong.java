@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
+import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +32,9 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = "annihilationblade")
 public class Dankong extends SpecialEffect {
-   private static final double RANGE = 72.0;
-   private static final int MAX_TARGETS = 48;
-   private static final int STEP_INTERVAL = 2;
-   private static final int COOLDOWN_TICKS = 12;
    private static final Map<UUID, Dankong.Sequence> ACTIVE = new HashMap<>();
    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
+   private static final Map<UUID, Boolean> BLINK_ENABLED = new HashMap<>();
 
    public Dankong() {
       super(0, false, false);
@@ -46,8 +44,26 @@ public class Dankong extends SpecialEffect {
       return ACTIVE.containsKey(player.getUUID());
    }
 
+   public static boolean isBlinkEnabled(Player player) {
+      return BLINK_ENABLED.getOrDefault(player.getUUID(), true);
+   }
+
+   public static void setBlinkEnabled(Player player, boolean enabled) {
+      BLINK_ENABLED.put(player.getUUID(), enabled);
+      if (!enabled && player instanceof ServerPlayer serverPlayer) {
+         Dankong.Sequence sequence = ACTIVE.get(player.getUUID());
+         if (sequence != null) {
+            finishSequence(serverPlayer, sequence);
+         }
+      }
+   }
+
+   public static void clearBlinkMode(UUID playerId) {
+      BLINK_ENABLED.remove(playerId);
+   }
+
    public static void clearPlayer(UUID playerId) {
-      ACTIVE.remove(playerId);
+      cancelActiveSequence(playerId);
       LAST_TRIGGER.remove(playerId);
    }
 
@@ -57,15 +73,17 @@ public class Dankong extends SpecialEffect {
          if (!player.level().isClientSide()) {
             ISlashBladeState state = event.getSlashBladeState();
             if (state.hasSpecialEffect(ModSpecialEffects.DANKONG.getId())) {
-               if (!player.isShiftKeyDown()) {
+               if (!player.isShiftKeyDown() && isBlinkEnabled(player)) {
                   if (!ACTIVE.containsKey(player.getUUID())) {
                      long gameTime = player.level().getGameTime();
-                     if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, gameTime, 12)) {
+                     if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, gameTime, ModConfig.COMMON.annihilationBlade.dankong.cooldownTicks.get())) {
                         Vec3 origin = player.position();
                         List<UUID> targets = collectTargets(player, origin);
                         if (!targets.isEmpty()) {
                            ACTIVE.put(player.getUUID(), new Dankong.Sequence(origin, player.getYRot(), player.getXRot(), targets));
-                           AnnihilationVisuals.spawnBlinkGate(player.serverLevel(), origin.add(0.0, 1.0, 0.0), 2.0);
+                           AnnihilationVisuals.spawnBlinkGate(
+                              player.serverLevel(), origin.add(0.0, 1.0, 0.0), 2.0 * ModConfig.COMMON.annihilationBlade.dankong.visualScale.get()
+                           );
                            player.level()
                               .playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.2F, 1.8F);
                         }
@@ -83,8 +101,13 @@ public class Dankong extends SpecialEffect {
          if (event.player instanceof ServerPlayer player) {
             Dankong.Sequence sequence = ACTIVE.get(player.getUUID());
             if (sequence != null) {
+               if (player.isShiftKeyDown() || !isBlinkEnabled(player)) {
+                  finishSequence(player, sequence);
+                  return;
+               }
+
                sequence.age++;
-               if (sequence.age % 2 == 0) {
+               if (sequence.age % ModConfig.COMMON.annihilationBlade.dankong.stepInterval.get() == 0) {
                   ServerLevel level = player.serverLevel();
 
                   while (sequence.index < sequence.targets.size()) {
@@ -95,27 +118,47 @@ public class Dankong extends SpecialEffect {
                      }
                   }
 
-                  player.teleportTo(level, sequence.origin.x, sequence.origin.y, sequence.origin.z, sequence.yRot, sequence.xRot);
-                  player.setDeltaMovement(Vec3.ZERO);
-                  level.playSound(
-                     null, sequence.origin.x, sequence.origin.y, sequence.origin.z, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.PLAYERS, 1.4F, 0.6F
-                  );
-                  level.sendParticles(ParticleTypes.REVERSE_PORTAL, sequence.origin.x, sequence.origin.y + 1.0, sequence.origin.z, 90, 1.4, 0.9, 1.4, 0.35);
-                  AnnihilationVisuals.spawnBlinkGate(level, sequence.origin.add(0.0, 1.0, 0.0), 2.4);
-                  ACTIVE.remove(player.getUUID());
+                  finishSequence(player, sequence);
                }
             }
          }
       }
    }
 
+   private static void cancelActiveSequence(UUID playerId) {
+      ACTIVE.remove(playerId);
+   }
+
+   private static void finishSequence(ServerPlayer player, Dankong.Sequence sequence) {
+      ServerLevel level = player.serverLevel();
+      player.teleportTo(level, sequence.origin.x, sequence.origin.y, sequence.origin.z, sequence.yRot, sequence.xRot);
+      player.setDeltaMovement(Vec3.ZERO);
+      level.playSound(null, sequence.origin.x, sequence.origin.y, sequence.origin.z, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.PLAYERS, 1.4F, 0.6F);
+      double visualScale = ModConfig.COMMON.annihilationBlade.dankong.visualScale.get();
+      level.sendParticles(
+         ParticleTypes.REVERSE_PORTAL,
+         sequence.origin.x,
+         sequence.origin.y + 1.0,
+         sequence.origin.z,
+         visualCount(90, visualScale),
+         1.4 * visualScale,
+         0.9 * visualScale,
+         1.4 * visualScale,
+         0.35
+      );
+      AnnihilationVisuals.spawnBlinkGate(level, sequence.origin.add(0.0, 1.0, 0.0), 2.4 * visualScale);
+      ACTIVE.remove(player.getUUID());
+   }
+
    private static List<UUID> collectTargets(ServerPlayer player, Vec3 origin) {
-      AABB area = new AABB(origin, origin).inflate(72.0);
+      double range = ModConfig.COMMON.annihilationBlade.dankong.range.get();
+      int maxTargets = ModConfig.COMMON.annihilationBlade.dankong.maxTargets.get();
+      AABB area = new AABB(origin, origin).inflate(range);
       List<LivingEntity> entities = player.serverLevel()
          .getEntitiesOfClass(
             LivingEntity.class,
             area,
-            entityx -> SpecialEffectSupport.canTarget(player, entityx) && SpecialEffectSupport.distanceToBoxSqr(origin, entityx.getBoundingBox()) <= 5184.0
+            entityx -> SpecialEffectSupport.canTarget(player, entityx) && SpecialEffectSupport.distanceToBoxSqr(origin, entityx.getBoundingBox()) <= range * range
          );
       entities.sort(
          (a, b) -> Double.compare(
@@ -126,7 +169,7 @@ public class Dankong extends SpecialEffect {
 
       for (LivingEntity entity : entities) {
          result.add(entity.getUUID());
-         if (result.size() >= 48) {
+         if (result.size() >= maxTargets) {
             break;
          }
       }
@@ -152,9 +195,12 @@ public class Dankong extends SpecialEffect {
       player.teleportTo(level, attackPos.x, attackPos.y, attackPos.z, yaw, pitch);
       player.setDeltaMovement(Vec3.ZERO);
       AnnihilationVisuals.spawnBlinkTrail(level, travelStart, targetCenter, player.getRandom());
+      double visualScale = ModConfig.COMMON.annihilationBlade.dankong.visualScale.get();
       level.sendParticles(ParticleTypes.FLASH, targetCenter.x, targetCenter.y, targetCenter.z, 1, 0.0, 0.0, 0.0, 0.0);
-      level.sendParticles(ParticleTypes.END_ROD, targetCenter.x, targetCenter.y, targetCenter.z, 55, 0.8, 0.8, 0.8, 0.12);
-      level.sendParticles(ParticleTypes.REVERSE_PORTAL, targetCenter.x, targetCenter.y, targetCenter.z, 80, 1.2, 1.0, 1.2, 0.45);
+      level.sendParticles(ParticleTypes.END_ROD, targetCenter.x, targetCenter.y, targetCenter.z, visualCount(55, visualScale), 0.8 * visualScale, 0.8 * visualScale, 0.8 * visualScale, 0.12);
+      level.sendParticles(
+         ParticleTypes.REVERSE_PORTAL, targetCenter.x, targetCenter.y, targetCenter.z, visualCount(80, visualScale), 1.2 * visualScale, 1.0 * visualScale, 1.2 * visualScale, 0.45
+      );
       AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
       level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 1.9F);
       AttackManager.doSlash(player, player.getRandom().nextInt(360), Vec3.ZERO, true, true, 9999.0);
@@ -174,6 +220,10 @@ public class Dankong extends SpecialEffect {
       Vec3 diff = to.subtract(from);
       double horizontal = Math.sqrt(diff.x * diff.x + diff.z * diff.z);
       return (float)(-(Mth.atan2(diff.y, horizontal) * 180.0F / (float)Math.PI));
+   }
+
+   private static int visualCount(int base, double visualScale) {
+      return Math.max(1, (int)Math.round(base * visualScale));
    }
 
    private static class Sequence {

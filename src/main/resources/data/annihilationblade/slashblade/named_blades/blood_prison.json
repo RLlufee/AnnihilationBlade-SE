@@ -1,12 +1,10 @@
 {
   "name": "annihilationblade:blood_prison",
-  "model_name": "annihilationblade:model/blood_prison.obj",
-  "texture_name": "annihilationblade:model/blood_prison.png",
-  "enchantments": {
-    "minecraft:unbreaking": 10,
-    "minecraft:mending": 10,
-    "minecraft:sharpness": 10
-  },
+  "enchantments": [
+    { "id": "minecraft:unbreaking", "lvl": 10 },
+    { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:sharpness", "lvl": 10 }
+  ],
   "properties": {
     "attack_base": 16.0,
     "max_damage": 2400,
@@ -20,12 +18,7 @@
     "unbreakable": true,
     "sword_type": [
       "bewitched"
-    ],
-    "default_grip": {
-      "scale": [0.05, 0.05, 0.05],
-      "rotate": [0.0, 0.0, 0.0],
-      "translate": [0.0, 0.0, 0.0]
-    }
+    ]
   },
   "render": {
     "carry_type": "ninja",

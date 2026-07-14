@@ -23,7 +23,7 @@ public class ItemAnnihilationCore extends Item {
    public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
       ItemStack itemStack = player.getItemInHand(hand);
       if (!level.isClientSide) {
-         ItemStack godSword = getGodBladeFromManager();
+         ItemStack godSword = getGodBladeFromManager(level);
          if (!godSword.isEmpty() && player.getInventory().add(godSword)) {
             itemStack.shrink(1);
             return InteractionResultHolder.success(itemStack);
@@ -38,7 +38,7 @@ public class ItemAnnihilationCore extends Item {
       tooltip.add(Component.translatable("item.annihilationblade.annihilation_core.tip"));
    }
 
-   private static ItemStack getGodBladeFromManager() {
-      return AnnihilationBladeDefinitions.createStack();
+   private static ItemStack getGodBladeFromManager(Level level) {
+      return AnnihilationBladeDefinitions.createStack(level);
    }
 }

@@ -28,6 +28,14 @@ public final class ModNetwork {
          BloodPrisonDomainPacket::handle,
          Optional.of(NetworkDirection.PLAY_TO_CLIENT)
       );
+      CHANNEL.registerMessage(
+         messageId++,
+         DankongBlinkModePacket.class,
+         DankongBlinkModePacket::encode,
+         DankongBlinkModePacket::decode,
+         DankongBlinkModePacket::handle,
+         Optional.of(NetworkDirection.PLAY_TO_SERVER)
+      );
    }
 
    public static void sendBloodPrisonDomain(ServerPlayer player, int durationTicks) {

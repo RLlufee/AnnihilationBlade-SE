@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
+import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +21,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = "annihilationblade")
 public class StarlessJudgement extends SpecialEffect {
-   private static final double RANGE = 56.0;
-   private static final double WIDTH = 8.5;
-   private static final int COOLDOWN_TICKS = 34;
-   private static final int MAX_TARGETS = 80;
    private static final Map<UUID, Long> LAST_TRIGGER = new HashMap<>();
 
    public StarlessJudgement() {
@@ -40,27 +37,31 @@ public class StarlessJudgement extends SpecialEffect {
          if (!Dankong.isActive(player)) {
             ISlashBladeState state = event.getSlashBladeState();
             if (state.hasSpecialEffect(ModSpecialEffects.STARLESS_JUDGEMENT.getId())) {
-               if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, player.level().getGameTime(), 34)) {
+               ModConfig.StarlessJudgement config = ModConfig.COMMON.annihilationBlade.starlessJudgement;
+               if (SpecialEffectSupport.tryStartCooldown(LAST_TRIGGER, player, player.level().getGameTime(), config.cooldownTicks.get())) {
                   ServerLevel level = player.serverLevel();
+                  double range = config.range.get();
+                  double width = config.width.get();
+                  double visualScale = config.visualScale.get();
                   Vec3 direction = player.getLookAngle().normalize();
                   Vec3 right = SpecialEffectSupport.rightOf(direction);
                   Vec3 start = player.getEyePosition().add(direction.scale(1.4));
-                  Vec3 end = start.add(direction.scale(56.0));
-                  AnnihilationVisuals.spawnStarlessJudgementCast(level, start, direction, right, 56.0, 8.5);
-                  List<LivingEntity> targets = SpecialEffectSupport.beamTargets(level, player, start, direction, 56.0, 8.5, 80);
+                  Vec3 end = start.add(direction.scale(range));
+                  AnnihilationVisuals.spawnStarlessJudgementCast(level, start, direction, right, range * visualScale, width * visualScale);
+                  List<LivingEntity> targets = SpecialEffectSupport.beamTargets(level, player, start, direction, range, width, config.maxTargets.get());
 
                   for (int index = 0; index < targets.size(); index++) {
                      LivingEntity target = targets.get(index);
                      Vec3 targetCenter = SpecialEffectSupport.centerOf(target);
                      double projection = targetCenter.subtract(start).dot(direction);
-                     Vec3 nearest = start.add(direction.scale(Math.max(0.0, Math.min(56.0, projection))));
-                     AnnihilationVisuals.spawnSlashBridge(level, nearest, targetCenter, 1.1 + index * 0.01, player.getRandom());
+                     Vec3 nearest = start.add(direction.scale(Math.max(0.0, Math.min(range, projection))));
+                     AnnihilationVisuals.spawnSlashBridge(level, nearest, targetCenter, (1.1 + index * 0.01) * visualScale, player.getRandom());
                      SpecialEffectSupport.pullToward(target, nearest, 0.1);
                      AnnihilationVisuals.spawnExecutionBurst(level, target, player.getRandom());
                      TerminusLogic.execute(target, player);
                   }
 
-                  AnnihilationVisuals.spawnCollapsePulse(level, end, 8.5, targets.size());
+                  AnnihilationVisuals.spawnCollapsePulse(level, end, width * visualScale, targets.size());
                }
             }
          }
