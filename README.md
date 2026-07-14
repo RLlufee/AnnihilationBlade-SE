@@ -1,73 +1,80 @@
-# Annihilation Blade · Terminus 2.4.8-1.20.1-forge
+# Annihilation Blade · Terminus 2.6.0-1.20.1-forge
 
-> 基于 SlashBlade 的拔刀剑扩展模组，围绕“终焉”“裂界”“坍缩”“审判”主题构建一把主刀和一组风格统一的 SA / SE 组合。
+> 基于 SlashBlade / SlashBlade Resharped 的 Forge 1.20.1 拔刀剑扩展模组。模组围绕“终焉、裂界、坍缩、审判、血狱”主题，提供两把命名刀、两套 SA、完整 SE 链路、可配置低风险参数，以及面向实战可读性的视觉与按键控制。
 
 作者：青衣_璃
 
 ## 概览
 
-Annihilation Blade 提供了一把主武器 `annihilationblade:annihilation_blade`，以及围绕这把刀设计的完整效果链路：
+当前版本包含：
 
-- 1 个主 SA
-- 8 个 SE
-- 命名刀配置
-- 粒子和音效演出
-- 召唤剑、裂界牵引、因果连锁与范围处决逻辑
+- 主刀 `annihilationblade:annihilation_blade`
+- 血狱刀 `annihilationblade:blood_prison`
+- 2 个 SA：`spatial_fracture`、`infernal_slaughter`
+- 11 个 SE 注册项，其中湮灭之刃使用 8 个终焉系 SE，血狱使用 3 个血狱系 SE
+- 命名刀 datapack 定义
+- Forge common 配置文件
+- 中英及繁中语言资源
+- 断空闪现模式热键与动作栏提示
+- SlashBlade 原生友伤 / PVP 判定统一接入
 
-## 特色
+## 需求
 
-- 主刀拥有鲜明的终焉主题视觉风格
-- 每个 SE 都有独立触发节奏、目标筛选和表现方式
-- 处决逻辑统一接入 SlashBlade 的击杀路径
-- `Phantom Judgement` 使用真实召唤剑实体表现
-- `World Rift`、`Causality Collapse`、`Starless Judgement` 已拆出共用支撑逻辑，导包更轻，效果主体更清晰
-- `Spatial Fracture` 作为主 SA，承担大范围终结演出
-- 湮灭之刃位于背包、主手或副手时，会在客户端获得夜视
-- 所有普攻、SA 与 SE 的目标判定统一遵循 SlashBlade 的 `pvp_enable` 与 `friendly_enable` 配置，默认不会伤及玩家、宠物和非敌对单位
+| 项目 | 版本 |
+| --- | --- |
+| Minecraft | `1.20.1` |
+| Forge | `47.4.21` |
+| Java | `17` |
+| 前置 | SlashBlade / SlashBlade Resharped |
 
 ## 武器
 
 ### `annihilationblade:annihilation_blade`
 
-主武器的命名刀配置位于 `data/annihilationblade/slashblade/named_blades/annihilation_blade.json`。
+主武器“湮灭之刃 · 终焉”。命名刀定义位于：
+
+`src/main/resources/data/annihilationblade/slashblade/named_blades/annihilation_blade.json`
 
 | 项目 | 内容 |
 | --- | --- |
-| 攻击力基础值 | `50.0` |
+| 基础攻击力 | `50.0` |
 | 耐久 | `2000` |
 | SA | `annihilationblade:spatial_fracture` |
 | SE 数量 | `8` |
+| 额外被动 | 绝对庇护、虚空飞行、终焉处决、永昼视界 |
 
-SE 列表：
-
-- `annihilationblade:dankong`
-- `annihilationblade:world_rift`
-- `annihilationblade:terminus_echo`
-- `annihilationblade:void_dominion`
-- `annihilationblade:causality_collapse`
-- `annihilationblade:starless_judgement`
-- `annihilationblade:phantom_judgement`
-- `annihilationblade:abyssal_decree`
+湮灭之刃位于背包、主手或副手时，客户端会获得永昼视界效果；战斗判定统一遵循 SlashBlade 的原生攻击规则，默认不会误伤玩家、宠物或非敌对单位。
 
 ### `annihilationblade:blood_prison`
 
-另一把红色「血狱」刀未完成，仅仅展示基础用途。
+血狱刀“魔刀 · 血狱”。命名刀定义位于：
+
+`src/main/resources/data/annihilationblade/slashblade/named_blades/blood_prison.json`
+
+| 项目 | 内容 |
+| --- | --- |
+| 基础攻击力 | `16.0` |
+| 耐久 | `2400` |
+| SA | `annihilationblade:infernal_slaughter` |
+| SE | `blood_leech`、`spirit_shield`、`phantom_mark` |
+
+血狱围绕低血量风险、吸血、护盾、领域与幻影爆发构建。伤害、吸血、护盾触发和处决类逻辑保持写死，不开放到配置文件，避免破坏平衡或造成服务端误用。
 
 ## SA
 
 ### `空间破碎` / `Spatial Fracture`
 
-主刀绑定的 SA，属于大范围终结型斩击。
+湮灭之刃绑定的主 SA。触发后会沿玩家视线寻找裂隙中心，生成空间裂环、裂界蛛网、传送门粒子、闪电散射和剑雨演出。
 
-触发后会先播放开场音效，并在玩家视线方向上寻找裂隙中心。随后生成一整套裂界演出，包括：
+逻辑上会优先锁定视线前方落点；如果准星路径上存在合适目标，则以目标中心作为裂隙焦点。命中实体会逐个执行终焉处决，并尽量走 SlashBlade 的真实击杀路径来维持击杀计数。
 
-- 空间裂环
-- 裂界蛛网
-- 传送门粒子
-- 闪电与能量散射
-- 终焉感的爆发式剑雨效果
+已开放配置项包括最大距离、裂隙半径、视线扫描步长、采样半径、锁定半径、备用搜索半径、目标上限、可视化目标数、斩击线数量和视觉倍率。
 
-逻辑上，它会优先锁定玩家视线前方的落点；如果视线中存在合适目标，也会把目标中心作为裂隙焦点。命中的实体会被逐个执行终焉处决，并尽量走 SlashBlade 的真实击杀路径来维持击杀计数。
+### `炼狱杀戮` / `Infernal Slaughter`
+
+血狱刀绑定的 SA。触发后展开血狱领域，并同步客户端领域覆盖效果。领域持续期间，玩家斩击会在领域内选取敌对单位进行穿梭打击，并记录领域内造成的伤害，用于结束时的治疗反馈。
+
+已开放配置项包括领域持续时间、领域半径、边界粒子刷新间隔、玩家血气粒子间隔、领域脉冲间隔和视觉倍率。
 
 ## SE
 
@@ -78,93 +85,108 @@ SE 列表：
 | `归墟回响` / `Terminus Echo` | 前向回声 | 沿面朝方向连续释放多波回响斩击 |
 | `虚无权域` / `Void Dominion` | 大范围领域 | 在前方区域展开裂界并逐个清场 |
 | `因果坍缩` / `Causality Collapse` | 连锁审判 | 从首个目标开始按最近目标续接，生成因果锚点与桥接斩线 |
-| `星寂裁决` / `Starless Judgement` | 直线裁决 | 在前方展开三重裁决波带，按投影判定沿途处决 |
+| `星寂裁决` / `Starless Judgement` | 直线裁决 | 在前方展开裁决波带，按投影判定沿途处决 |
 | `幻影审判` / `Phantom Judgement` | 召剑审判 | 先环绕搜索，再以召唤剑落下集中打击 |
 | `归墟天诏` / `Abyssal Decree` | 高位裁定 | 在头顶构筑冠冕后，从高空逐个降下审判 |
+| `嗜血` / `Blood Leech` | 血狱被动 | 配合血狱主逻辑提供吸血与风险收益 |
+| `源流灵盾` / `Spirit Shield` | 血狱被动 | 低血量时提供护盾与短时增益 |
+| `幻影印记` / `Phantom Mark` | 血狱被动 | 累积标记后触发幻影剑爆发 |
 
-## 效果细节
+## 断空控制
 
-### `断空` / `Dankong`
+`断空` 是高速连续闪现 SE。为了避免日常杀怪时不断闪现导致视野混乱，当前版本提供两层保险：
 
-- 触发于斩击动作
-- 抓取一定范围内的目标列表
-- 玩家在目标之间连续瞬移斩击
-- 有冷却限制，避免过快重复触发
-- 适合表现高速收割
+- 按住 Shift 时，断空不会开始新的闪现序列。
+- 断空序列进行中按住 Shift，会中断并返回起点。
+- 新增可配置按键“切换断空闪现模式”，默认 `Left Ctrl`。
+- 热键只在玩家主手或副手手持湮灭之刃时生效。
+- 按下热键后，屏幕下方动作栏会显示本地化提示，例如“切换断空闪现模式：当前闪现：开 / 关”。
 
-### `裂界` / `World Rift`
+提示文本已经使用语言文件，不再硬编码中文，便于其他语言翻译和样式调整。
 
-- 命中型范围 SE
-- 以被击中的目标为中心打开裂界
-- 周围半径内的敌对单位会被裂界丝线捕获并向中心牵引
-- 每个目标都有独立的裂界桥接、处决爆发和最终坍缩收束
-- 视觉上更接近“世界被撕开后整片区域被拉入终焉”
+## 配置文件
 
-### `归墟回响` / `Terminus Echo`
+首次启动后，Forge 会生成：
 
-- 前方多波推进
-- 按波次释放回响斩击
-- 形成层层推进的横向切割效果
-- 可持续打击路径上的多个敌对目标
+`config/annihilationblade-common.toml`
 
-### `虚无权域` / `Void Dominion`
+配置文件只开放低风险参数：
 
-- 以玩家前方区域为中心展开
-- 同步叠加多层裂界与坍缩视觉
-- 对区域内多个目标逐个处决
-- 适合表现“领域展开后直接清空”
+- 范围：例如搜索范围、领域半径、裁决宽度。
+- 间隔：例如连续闪现间隔、回响波次间隔、领域粒子刷新间隔。
+- 冷却：例如各 SE 的触发冷却。
+- 数量：例如最大目标数、召唤剑数量、可视化目标数。
+- 视觉倍率：例如粒子数量、视觉半径或演出密度。
 
-### `因果坍缩` / `Causality Collapse`
+不会开放的内容：
 
-- 首个命中后继续寻找附近最近目标
-- 每一跳都会生成因果锚点、桥接斩线和局部处决爆发
-- 目标会被轻微拉向上一段因果节点，让连锁更有“被命运拽回去”的感觉
-- 末尾会以坍缩脉冲收束整条因果链
+- 伤害倍率
+- 终焉处决逻辑
+- 血狱吸血与护盾核心数值
+- 无敌、庇护、飞行等安全相关逻辑
+- SlashBlade 真实击杀路径
 
-### `星寂裁决` / `Starless Judgement`
+每个配置项都带有中文和英文注释，并写明建议最小 / 最大值。Forge 也会通过 `defineInRange` 对配置值做硬范围限制，避免新玩家填入极端数值导致卡顿或逻辑异常。
 
-- 面向前方的直线审判
-- 起手生成三道并行裁决波带，并附带贯穿光线与终点闪爆
-- 沿玩家视线方向投影判定目标，越远判定区越宽
-- 命中目标会被拉回裁决轨迹并触发处决爆发
-- 适合中远距离清场和压制
+### 配置分组
 
-### `幻影审判` / `Phantom Judgement`
+主要分组如下：
 
-- 多把召唤剑在玩家周围搜索与盘旋
-- 先进入预备阶段，再进入落下阶段
-- 使用真实召唤剑实体来表现
-- 命中时带有明显的剑雨和冲击痕迹
+```toml
+[annihilation_blade.spatial_fracture]
+[annihilation_blade.dankong]
+[annihilation_blade.world_rift]
+[annihilation_blade.terminus_echo]
+[annihilation_blade.void_dominion]
+[annihilation_blade.causality_collapse]
+[annihilation_blade.starless_judgement]
+[annihilation_blade.phantom_judgement]
+[annihilation_blade.abyssal_decree]
+[blood_prison.domain]
+[blood_prison.phantom_burst]
+```
 
-### `归墟天诏` / `Abyssal Decree`
+## 本地化
 
-- 先在玩家头顶构筑冠冕效果
-- 再按优先级逐个从高空降下审判
-- 目标选择会参考血量、护甲和距离
-- 适合表现高位裁定和最终宣判
+语言资源位于：
 
-## 注册
+`src/main/resources/assets/annihilationblade/lang/`
 
-源码里把 SA / SE 分别注册在两个位置：
+当前包含：
 
-- `ModSlashArts` 负责注册 `Spatial Fracture`
-- `ModSpecialEffects` 负责注册全部 8 个 SE
+- `zh_cn.json`
+- `zh_tw.json`
+- `zh_hk.json`
+- `en_us.json`
 
-对应实现位于：
+断空按键名称、动作栏提示、物品名、SA / SE 名称和物品描述均已接入语言文件。
 
-- `src/main/java/org/examplea/annihilationblade/specialeffect/`
-- `src/main/java/org/examplea/annihilationblade/logic/`
-- `src/main/java/org/examplea/annihilationblade/visual/`
+## 注册与源码路径
 
-## 资源
+SA / SE 注册位置：
 
-项目的视觉和听觉表现主要由以下内容组成：
+- `src/main/java/QWQ/QingYi/annihilationblade/registry/ModSlashArts.java`
+- `src/main/java/QWQ/QingYi/annihilationblade/registry/ModSpecialEffects.java`
 
-- 粒子：`ENCHANT`、`END_ROD`、`REVERSE_PORTAL`、`PORTAL`、`FLASH`、`ELECTRIC_SPARK`
-- 音效：末地传送门、信标、雷击、诡异坍缩等音色
-- 召唤剑：`Phantom Judgement` 使用召唤剑实体进行演出
-- 处决：多个 SE 最终都会调用统一的终焉执行逻辑
+主要实现路径：
+
+- `src/main/java/QWQ/QingYi/annihilationblade/annihilation_blade/`
+- `src/main/java/QWQ/QingYi/annihilationblade/blood_prison/`
+- `src/main/java/QWQ/QingYi/annihilationblade/common/`
+- `src/main/java/QWQ/QingYi/annihilationblade/config/ModConfig.java`
+- `src/main/java/QWQ/QingYi/annihilationblade/network/`
 
 ## 构建
 
-本项目面向 Forge 1.20.1 环境，建议使用 Java 17 进行编译与调试。
+建议使用 Java 17：
+
+```powershell
+$env:JAVA_HOME='C:\Program Files\Zulu\zulu-17'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+$env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8'
+./gradlew.bat --no-daemon clean build --console=plain
+```
+
+构建产物位于：
+
+`build/libs/annihilationblade-2.6.0-1.20.1-forge.jar`
