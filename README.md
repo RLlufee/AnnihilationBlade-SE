@@ -1,4 +1,4 @@
-# Annihilation Blade · Terminus 2.6.0-1.20.1-forge
+# Annihilation Blade · Terminus 2.6.1-1.20.1-forge
 
 > 基于 SlashBlade / SlashBlade Resharped 的 Forge 1.20.1 拔刀剑扩展模组。模组围绕“终焉、裂界、坍缩、审判、血狱”主题，提供两把命名刀、两套 SA、完整 SE 链路、可配置低风险参数，以及面向实战可读性的视觉与按键控制。
 
@@ -15,6 +15,7 @@
 - 命名刀 datapack 定义
 - Forge common 配置文件
 - 中英及繁中语言资源
+- JEI SlashBlade 联动描述资源
 - 断空闪现模式热键与动作栏提示
 - SlashBlade 原生友伤 / PVP 判定统一接入
 
@@ -159,7 +160,18 @@
 - `zh_hk.json`
 - `en_us.json`
 
-断空按键名称、动作栏提示、物品名、SA / SE 名称和物品描述均已接入语言文件。
+断空按键名称、动作栏提示、物品名、SA / SE 名称、物品描述和 JEI 说明文案均已接入语言文件。
+
+## JEI SlashBlade 联动
+
+当前版本为 `jei_slashblade` 添加了资源级联动，并补充了两把命名刀、SA 与 SE 的本地化说明：
+
+- `assets/annihilationblade/blade_desc/annihilation_blade.json`
+- `assets/annihilationblade/blade_desc/blood_prison.json`
+- SA 描述键：`slashblade.slash_art.annihilationblade.*.desc`
+- SE 描述键：`se.annihilationblade.*.desc`
+
+安装 JEI SlashBlade 后，可以在 JEI 中查看两把命名刀的简介，并在 SA / SE 分类里阅读湮灭之刃和血狱相关效果说明。
 
 ## 注册与源码路径
 
@@ -189,4 +201,4 @@ $env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8'
 
 构建产物位于：
 
-`build/libs/annihilationblade-2.6.0-1.20.1-forge.jar`
+`build/libs/annihilationblade-2.6.1-1.20.1-forge.jar`

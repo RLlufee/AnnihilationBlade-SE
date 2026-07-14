@@ -40,6 +40,13 @@ versionRange="[0.0.1,)"
 ordering="NONE"
 side="BOTH"
 
+[[dependencies.annihilationblade]]
+modId="jei_slashblade"
+mandatory=false
+versionRange="[0.0.1,)"
+ordering="AFTER"
+side="CLIENT"
+
 [[mixins]]
     type = "FML"
     config = "annihilationblade.mixins.json"
