@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "pattern": [
     "AAA",
     "AAA",
@@ -12,7 +11,7 @@
     }
   },
   "result": {
-    "id": "annihilationbladeex:annihilation_core",
+    "item": "annihilationbladeex:annihilation_core",
     "count": 1
   }
 }

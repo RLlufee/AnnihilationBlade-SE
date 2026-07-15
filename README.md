@@ -1,6 +1,6 @@
-# AnnihilationBladeEX 2.4.8-1.21.1-neoforge
+# AnnihilationBladeEX 2.5.0-1.21.1-neoforge
 
-湮灭之刃的 1.21.1 NeoForge 移植版，公开命名空间为 `annihilationbladeex`，目标版本固定为 `2.4.8-1.21.1-neoforge`。
+湮灭之刃的 1.21.1 NeoForge 移植版，公开命名空间为 `annihilationbladeex`，目标版本固定为 `2.5.0-1.21.1-neoforge`。
 
 ## 环境
 
@@ -42,4 +42,4 @@ $env:JAVA_TOOL_OPTIONS='-Dfile.encoding=UTF-8'
 .\gradlew.bat --no-daemon build --console=plain
 ```
 
-产物位于 `build/libs/`，文件名应包含版本 `2.4.8-1.21.1-neoforge`。
+产物位于 `build/libs/`，文件名应包含版本 `2.5.0-1.21.1-neoforge`。

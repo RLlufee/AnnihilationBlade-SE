@@ -2,46 +2,16 @@
   "item": "annihilationbladeex:annihilation_blade",
   "name": "annihilationbladeex:annihilation_blade",
   "enchantments": [
-    {
-      "id": "minecraft:sharpness",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:fire_aspect",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:smite",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:bane_of_arthropods",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:looting",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:sweeping_edge",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:power",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:unbreaking",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:mending",
-      "lvl": 10
-    },
-    {
-      "id": "minecraft:thorns",
-      "lvl": 10
-    }
+    { "id": "minecraft:sharpness", "lvl": 10 },
+    { "id": "minecraft:fire_aspect", "lvl": 10 },
+    { "id": "minecraft:smite", "lvl": 10 },
+    { "id": "minecraft:bane_of_arthropods", "lvl": 10 },
+    { "id": "minecraft:looting", "lvl": 10 },
+    { "id": "minecraft:sweeping_edge", "lvl": 10 },
+    { "id": "minecraft:power", "lvl": 10 },
+    { "id": "minecraft:unbreaking", "lvl": 10 },
+    { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:thorns", "lvl": 10 }
   ],
   "properties": {
     "attack_base": 50.0,

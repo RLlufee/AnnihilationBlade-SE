@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "pattern": [
     "ABA",
     "BBB",
@@ -15,7 +14,7 @@
     }
   },
   "result": {
-    "id": "annihilationbladeex:annihilation_fragment",
+    "item": "annihilationbladeex:annihilation_fragment",
     "count": 1
   }
 }
