@@ -2,6 +2,7 @@ package QWQ.QingYi.annihilationblade.annihilation_blade.client;
 
 import QWQ.QingYi.annihilationblade.Annihilationblade;
 import QWQ.QingYi.annihilationblade.common.AnnihilationBladeItemSupport;
+import QWQ.QingYi.annihilationblade.infinity_stellaris.item.InfinityStellarisItemSupport;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.UUID;
@@ -67,7 +68,8 @@ public final class ClientBladeVision {
       }
 
       Minecraft minecraft = Minecraft.getInstance();
-      boolean shouldBoost = minecraft.player != null && hasBladeInInventory();
+      boolean shouldBoost = minecraft.player != null
+         && (hasBladeInInventory() || InfinityStellarisItemSupport.hasInfinityStellarisInInventory(minecraft.player));
       applyGammaBoost(minecraft, shouldBoost);
    }
 

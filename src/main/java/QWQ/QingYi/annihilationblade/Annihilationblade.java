@@ -4,6 +4,7 @@ import QWQ.QingYi.annihilationblade.network.ModNetwork;
 import QWQ.QingYi.annihilationblade.config.ModConfig;
 import QWQ.QingYi.annihilationblade.registry.ModComboStates;
 import QWQ.QingYi.annihilationblade.registry.ModCreativeTabs;
+import QWQ.QingYi.annihilationblade.registry.ModEntities;
 import QWQ.QingYi.annihilationblade.registry.ModItems;
 import QWQ.QingYi.annihilationblade.registry.ModSlashArts;
 import QWQ.QingYi.annihilationblade.registry.ModSpecialEffects;
@@ -24,6 +25,7 @@ public class Annihilationblade {
    public Annihilationblade(FMLJavaModLoadingContext context) {
       IEventBus modEventBus = context.getModEventBus();
       ModItems.ITEMS.register(modEventBus);
+      ModEntities.ENTITY_TYPES.register(modEventBus);
       ModSlashArts.register(modEventBus);
       ModComboStates.register(modEventBus);
       ModSpecialEffects.register(modEventBus);

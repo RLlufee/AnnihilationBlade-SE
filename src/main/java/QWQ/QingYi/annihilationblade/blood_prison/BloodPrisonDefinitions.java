@@ -93,6 +93,7 @@ public final class BloodPrisonDefinitions {
       enchantments.put(Enchantments.UNBREAKING, Math.max(10, enchantments.getOrDefault(Enchantments.UNBREAKING, 0)));
       enchantments.put(Enchantments.MENDING, Math.max(10, enchantments.getOrDefault(Enchantments.MENDING, 0)));
       enchantments.put(Enchantments.SHARPNESS, Math.max(10, enchantments.getOrDefault(Enchantments.SHARPNESS, 0)));
+      enchantments.put(Enchantments.POWER_ARROWS, Math.max(10, enchantments.getOrDefault(Enchantments.POWER_ARROWS, 0)));
       EnchantmentHelper.setEnchantments(enchantments, stack);
    }
 }

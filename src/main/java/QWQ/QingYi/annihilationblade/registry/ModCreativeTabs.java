@@ -3,6 +3,7 @@ package QWQ.QingYi.annihilationblade.registry;
 import QWQ.QingYi.annihilationblade.annihilation_blade.AnnihilationBladeDefinitions;
 import QWQ.QingYi.annihilationblade.blood_prison.BloodPrisonDefinitions;
 import QWQ.QingYi.annihilationblade.client.ClientBladeLookup;
+import QWQ.QingYi.annihilationblade.infinity_stellaris.InfinityStellarisDefinitions;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,7 @@ public final class ModCreativeTabs {
          .displayItems((parameters, output) -> {
             output.accept(getNamedBladeStack("annihilation_blade"));
             output.accept(getNamedBladeStack("blood_prison"));
+            output.accept(getNamedBladeStack("infinity_stellaris"));
             output.accept(new ItemStack((ItemLike)ModItems.ANNIHILATION_FRAGMENT.get()));
             output.accept(new ItemStack((ItemLike)ModItems.ANNIHILATION_CORE.get()));
          })
@@ -42,6 +44,8 @@ public final class ModCreativeTabs {
       if (!clientStack.isEmpty()) {
          if ("blood_prison".equals(bladeName)) {
             BloodPrisonDefinitions.ensureStats(clientStack);
+         } else if ("infinity_stellaris".equals(bladeName)) {
+            InfinityStellarisDefinitions.ensureStats(clientStack);
          } else if ("annihilation_blade".equals(bladeName)) {
             AnnihilationBladeDefinitions.ensureStats(clientStack);
          }
@@ -49,6 +53,8 @@ public final class ModCreativeTabs {
          return clientStack;
       } else if ("annihilation_blade".equals(bladeName)) {
          return AnnihilationBladeDefinitions.createStack();
+      } else if ("infinity_stellaris".equals(bladeName)) {
+         return InfinityStellarisDefinitions.createStack();
       } else {
          return "blood_prison".equals(bladeName) ? BloodPrisonDefinitions.createStack() : ItemStack.EMPTY;
       }

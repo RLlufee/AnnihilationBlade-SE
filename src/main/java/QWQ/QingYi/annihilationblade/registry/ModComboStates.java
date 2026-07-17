@@ -2,6 +2,7 @@ package QWQ.QingYi.annihilationblade.registry;
 
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.SpatialFractureExecutor;
 import QWQ.QingYi.annihilationblade.blood_prison.logic.BloodPrisonLogic;
+import QWQ.QingYi.annihilationblade.infinity_stellaris.logic.VacuumDecayCollapseLogic;
 import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import mods.flammpfeil.slashblade.registry.combo.ComboState.Builder;
@@ -55,6 +56,30 @@ public class ModComboStates {
                BloodPrisonLogic.activateDomain(player);
             }
          }).build())
+         .build()
+   );
+   public static final RegistryObject<ComboState> VACUUM_DECAY_COLLAPSE_STATE = REGISTRY.register(
+      "vacuum_decay_collapse_state",
+      () -> Builder.newInstance()
+         .priority(95)
+         .startAndEnd(560, 620)
+         .motionLoc(DefaultResources.ExMotionLocation)
+         .next(entity -> ResourceLocation.fromNamespaceAndPath("slashblade", "none"))
+         .nextOfTimeout(entity -> ResourceLocation.fromNamespaceAndPath("slashblade", "none"))
+         .addTickAction(
+            TimeLineTickAction.getBuilder()
+               .put(
+                  4,
+                  entity -> entity.level()
+                     .playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.PLAYERS, 1.2F, 0.65F)
+               )
+               .put(16, entity -> {
+                  if (entity instanceof Player player && !player.level().isClientSide) {
+                     VacuumDecayCollapseLogic.unleash(player);
+                  }
+               })
+               .build()
+         )
          .build()
    );
 

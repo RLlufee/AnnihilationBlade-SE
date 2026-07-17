@@ -3,6 +3,7 @@
   "enchantments": [
     { "id": "minecraft:unbreaking", "lvl": 10 },
     { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:power", "lvl": 10 },
     { "id": "minecraft:sharpness", "lvl": 10 }
   ],
   "properties": {

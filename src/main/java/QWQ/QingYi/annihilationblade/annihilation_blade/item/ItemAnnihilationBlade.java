@@ -5,7 +5,6 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.level.Level;
 
 public class ItemAnnihilationBlade extends ItemSlashBlade {

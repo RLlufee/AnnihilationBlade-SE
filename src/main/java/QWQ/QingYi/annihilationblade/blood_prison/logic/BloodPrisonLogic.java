@@ -88,6 +88,10 @@ public final class BloodPrisonLogic {
       }
    }
 
+   public static boolean isPhantomBurstDamage(LivingEntity target) {
+      return target != null && PHANTOM_BURST_TARGETS.contains(target.getUUID());
+   }
+
    private static void cacheBloodPrisonState(Player player, boolean hasBloodPrison) {
       UUID id = player.getUUID();
       HAS_BLOOD_PRISON_CACHE.put(id, hasBloodPrison);

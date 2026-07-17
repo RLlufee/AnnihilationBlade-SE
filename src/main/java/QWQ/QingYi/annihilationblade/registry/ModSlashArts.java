@@ -1,6 +1,7 @@
 package QWQ.QingYi.annihilationblade.registry;
 
 import QWQ.QingYi.annihilationblade.blood_prison.logic.BloodPrisonLogic;
+import QWQ.QingYi.annihilationblade.infinity_stellaris.logic.VacuumDecayCollapseLogic;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -18,6 +19,13 @@ public class ModSlashArts {
       }
 
       return ModComboStates.INFERNAL_SLAUGHTER_STATE.getId();
+   }));
+   public static final RegistryObject<SlashArts> VACUUM_DECAY_COLLAPSE = ARTS.register("vacuum_decay_collapse", () -> new SlashArts(entity -> {
+      if (entity instanceof Player player && !player.level().isClientSide) {
+         VacuumDecayCollapseLogic.prepareCast(player);
+      }
+
+      return ModComboStates.VACUUM_DECAY_COLLAPSE_STATE.getId();
    }));
 
    public static void register(IEventBus eventBus) {

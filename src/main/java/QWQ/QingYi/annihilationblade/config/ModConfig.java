@@ -18,6 +18,7 @@ public final class ModConfig {
    public static final class Common {
       public final AnnihilationBlade annihilationBlade;
       public final BloodPrison bloodPrison;
+      public final InfinityStellaris infinityStellaris;
 
       private Common(ForgeConfigSpec.Builder builder) {
          builder.push("annihilation_blade");
@@ -25,6 +26,9 @@ public final class ModConfig {
          builder.pop();
          builder.push("blood_prison");
          this.bloodPrison = new BloodPrison(builder);
+         builder.pop();
+         builder.push("infinity_stellaris");
+         this.infinityStellaris = new InfinityStellaris(builder);
          builder.pop();
       }
    }
@@ -118,11 +122,15 @@ public final class ModConfig {
    public static final class WorldRift {
       public final ForgeConfigSpec.DoubleValue radius;
       public final ForgeConfigSpec.IntValue maxTargets;
+      public final ForgeConfigSpec.IntValue chainCount;
+      public final ForgeConfigSpec.DoubleValue chainRange;
       public final ForgeConfigSpec.DoubleValue visualScale;
 
       private WorldRift(ForgeConfigSpec.Builder builder) {
          this.radius = doubleValue(builder, "radius", 8.0, 2.0, 32.0, "裂界扩散半径，建议 5-14。", "World Rift spread radius. Suggested: 5-14.");
          this.maxTargets = intValue(builder, "max_targets", 24, 1, 96, "裂界最多影响目标数，建议 12-36。", "Maximum World Rift targets. Suggested: 12-36.");
+         this.chainCount = intValue(builder, "chain_count", 3, 1, 10, "裂界处决最多连锁次数，建议 3-5。", "Maximum World Rift execution chain depth. Suggested: 3-5.");
+         this.chainRange = doubleValue(builder, "chain_range", 256.0, 1.0, 1024.0, "裂界连锁距离上限，以最初攻击者为中心，建议 128-256。", "World Rift chain range cap from the original attacker. Suggested: 128-256.");
          this.visualScale = visualScale(builder, 1.0);
       }
    }
@@ -278,6 +286,20 @@ public final class ModConfig {
          this.swordDelayTicks = intValue(builder, "sword_delay_ticks", 18, 0, 80, "幻影剑命中延迟 tick，建议 12-24。", "Phantom sword impact delay in ticks. Suggested: 12-24.");
          this.burstRadiusScale = doubleValue(builder, "burst_radius_scale", 2.2, 0.5, 5.0, "爆发视觉半径与目标宽度倍率，建议 1.5-2.8。", "Burst visual radius scale against target width. Suggested: 1.5-2.8.");
          this.visualScale = visualScale(builder, 1.0);
+      }
+   }
+
+   public static final class InfinityStellaris {
+      public final ForgeConfigSpec.DoubleValue entropyPercent;
+      public final ForgeConfigSpec.IntValue entropyMarks;
+      public final ForgeConfigSpec.IntValue entropyBlacklistTicks;
+      public final ForgeConfigSpec.DoubleValue curvatureRadius;
+
+      private InfinityStellaris(ForgeConfigSpec.Builder builder) {
+         this.entropyPercent = doubleValue(builder, "entropy_percent", 0.10, 0.0, 1.0, "熵增蚀解每次追加的最大生命百分比。", "Max-health percentage added by Entropy Dissolution.");
+         this.entropyMarks = intValue(builder, "entropy_marks", 10, 1, 100, "触发热寂归零所需累计次数。", "Marks required before heat-death zeroing.");
+         this.entropyBlacklistTicks = intValue(builder, "entropy_blacklist_ticks", 40, 0, 400, "非玩家目标最终阶段后的短期黑名单 tick。", "Temporary blacklist ticks after final non-player execution.");
+         this.curvatureRadius = doubleValue(builder, "curvature_radius", 25.0, 1.0, 128.0, "曲率撕裂冻结半径。", "Curvature rupture freeze radius.");
       }
    }
 

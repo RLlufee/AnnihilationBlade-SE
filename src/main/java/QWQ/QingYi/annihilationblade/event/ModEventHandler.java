@@ -2,6 +2,7 @@ package QWQ.QingYi.annihilationblade.event;
 
 import QWQ.QingYi.annihilationblade.annihilation_blade.AnnihilationBladeDefinitions;
 import QWQ.QingYi.annihilationblade.annihilation_blade.logic.TerminusLogic;
+import QWQ.QingYi.annihilationblade.annihilation_blade.logic.WorldRiftChain;
 import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.AbyssalDecree;
 import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.CausalityCollapse;
 import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.Dankong;
@@ -10,6 +11,7 @@ import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.StarlessJud
 import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.TerminusEcho;
 import QWQ.QingYi.annihilationblade.annihilation_blade.specialeffect.VoidDominion;
 import QWQ.QingYi.annihilationblade.annihilation_blade.visual.AnnihilationVisuals;
+import QWQ.QingYi.annihilationblade.blood_prison.logic.BloodPrisonLogic;
 import QWQ.QingYi.annihilationblade.common.SlashBladeTargeting;
 import QWQ.QingYi.annihilationblade.common.SpecialEffectSupport;
 import java.awt.Color;
@@ -26,6 +28,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -100,6 +103,18 @@ public class ModEventHandler {
       }
    }
 
+   private static boolean hasGodBladeInHands(Player player) {
+      return isGodBlade(player.getMainHandItem()) || isGodBlade(player.getOffhandItem());
+   }
+
+   private static boolean isDirectGodBladeAttack(DamageSource source, Player player) {
+      return isGodBlade(player.getMainHandItem()) && source.getDirectEntity() == player && "player".equals(source.getMsgId());
+   }
+
+   private static boolean isGodBladeSlashEntityAttack(Entity directSource, Player player) {
+      return directSource != null && directSource.getType().toString().contains("slashblade") && hasGodBladeInHands(player);
+   }
+
    @SubscribeEvent
    @OnlyIn(Dist.CLIENT)
    public static void onItemTooltip(ItemTooltipEvent event) {
@@ -167,16 +182,25 @@ public class ModEventHandler {
 
    @SubscribeEvent(priority = EventPriority.LOWEST)
    public static void onHurt(LivingHurtEvent event) {
+      if (WorldRiftChain.isExecutingChain()) {
+         return;
+      }
+
+      if (BloodPrisonLogic.isPhantomBurstDamage(event.getEntity())) {
+         return;
+      }
+
       Entity source = event.getSource().getEntity();
       Entity directSource = event.getSource().getDirectEntity();
       if (source instanceof Player player) {
-         if (!isGodBlade(player.getMainHandItem()) || SlashBladeTargeting.canAttack(player, event.getEntity())) {
-            boolean shouldKill = isGodBlade(player.getMainHandItem());
-            if (directSource != null && directSource.getType().toString().contains("slashblade")) {
-               shouldKill = shouldKill || hasBladeInInventory(player);
+         boolean shouldKill = isDirectGodBladeAttack(event.getSource(), player) || isGodBladeSlashEntityAttack(directSource, player);
+
+         if (shouldKill && SlashBladeTargeting.canAttack(player, event.getEntity())) {
+            if (event.getEntity().level() instanceof ServerLevel level) {
+               WorldRiftChain.scheduleFromDamage(level, player, event.getEntity());
             }
 
-            if (shouldKill && !TerminusLogic.isMarkedForDeath(event.getEntity())) {
+            if (!TerminusLogic.isMarkedForDeath(event.getEntity())) {
                event.setAmount(10000.0F);
                TerminusLogic.markForDeath(event.getEntity());
                if (event.getEntity().level() instanceof ServerLevel level) {
