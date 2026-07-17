@@ -1,0 +1,40 @@
+{
+    "type": "slashblade:shaped_blade",
+    "blade": "annihilationbladeex:blood_prison",
+    "category": "equipment",
+    "key": {
+        "C": {
+            "type": "slashblade:blade",
+            "items": [
+                "slashblade:slashblade"
+            ],
+            "request": {
+                "name": "slashblade:ruby"
+            }
+        },
+        "D": {
+            "type": "slashblade:blade",
+            "items": [
+                "slashblade:slashblade"
+            ],
+            "request": {
+                "name": "slashblade:koseki",
+                "kill": 100,
+                "proud_soul": 1500,
+                "refine": 20
+            }
+        },
+        "E": {
+            "item": "minecraft:redstone_block"
+        }
+    },
+    "pattern": [
+        "ECE",
+        "CDC",
+        "ECE"
+    ],
+    "result": {
+        "count": 1,
+        "id": "slashblade:slashblade"
+    }
+}

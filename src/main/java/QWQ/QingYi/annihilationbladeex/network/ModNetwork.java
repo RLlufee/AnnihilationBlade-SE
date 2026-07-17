@@ -10,7 +10,8 @@ public final class ModNetwork {
 
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar("1")
-                .playToClient(BloodPrisonDomainPacket.TYPE, BloodPrisonDomainPacket.STREAM_CODEC, BloodPrisonDomainPacket::handle);
+                .playToClient(BloodPrisonDomainPacket.TYPE, BloodPrisonDomainPacket.STREAM_CODEC, BloodPrisonDomainPacket::handle)
+                .playToServer(DankongBlinkModePacket.TYPE, DankongBlinkModePacket.STREAM_CODEC, DankongBlinkModePacket::handle);
     }
 
     public static void sendBloodPrisonDomain(ServerPlayer player, int ticks) {

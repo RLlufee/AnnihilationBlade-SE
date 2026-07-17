@@ -1,0 +1,43 @@
+{
+  "name": "annihilationbladeex:infinity_stellaris",
+  "item": "slashblade:slashblade",
+  "creativeGroup": "annihilationbladeex:slashblade_tab",
+  "enchantments": [
+    { "id": "minecraft:sharpness", "lvl": 10 },
+    { "id": "minecraft:smite", "lvl": 10 },
+    { "id": "minecraft:bane_of_arthropods", "lvl": 10 },
+    { "id": "minecraft:knockback", "lvl": 10 },
+    { "id": "minecraft:looting", "lvl": 10 },
+    { "id": "minecraft:sweeping_edge", "lvl": 10 },
+    { "id": "minecraft:power", "lvl": 10 },
+    { "id": "minecraft:punch", "lvl": 10 },
+    { "id": "minecraft:infinity", "lvl": 10 },
+    { "id": "minecraft:quick_charge", "lvl": 10 },
+    { "id": "minecraft:multishot", "lvl": 10 },
+    { "id": "minecraft:piercing", "lvl": 10 },
+    { "id": "minecraft:unbreaking", "lvl": 10 },
+    { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:thorns", "lvl": 10 }
+  ],
+  "properties": {
+    "attack_base": 1000000.0,
+    "max_damage": 2147483647,
+    "slash_art": "annihilationbladeex:vacuum_decay_collapse",
+    "special_effects": [
+      "annihilationbladeex:entropy_dissolution",
+      "annihilationbladeex:curvature_rupture",
+      "annihilationbladeex:gamma_thunderburst",
+      "annihilationbladeex:cosmic_string_cut"
+    ],
+    "unbreakable": true,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "ninja",
+    "model": "annihilationbladeex:model/infinity_stellaris.obj",
+    "texture": "annihilationbladeex:model/infinity_stellaris.png",
+    "summon_sword_color": 4248287
+  }
+}

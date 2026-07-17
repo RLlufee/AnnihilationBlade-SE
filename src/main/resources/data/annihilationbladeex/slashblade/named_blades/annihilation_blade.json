@@ -1,6 +1,7 @@
 {
-  "item": "annihilationbladeex:annihilation_blade",
   "name": "annihilationbladeex:annihilation_blade",
+  "item": "annihilationbladeex:annihilation_blade",
+  "creativeGroup": "annihilationbladeex:slashblade_tab",
   "enchantments": [
     { "id": "minecraft:sharpness", "lvl": 10 },
     { "id": "minecraft:fire_aspect", "lvl": 10 },
@@ -29,14 +30,12 @@
     ],
     "sword_type": [
       "bewitched"
-    ],
-    "unbreakable": true
+    ]
   },
   "render": {
     "carry_type": "ninja",
-    "model": "annihilationbladeex:model/blade.obj",
-    "texture": "annihilationbladeex:model/blade.png",
-    "summon_sword_color": -5635841
-  },
-  "creativeGroup": "annihilationbladeex:slashblade_tab"
+    "model": "annihilationbladeex:model/annihilation_blade.obj",
+    "texture": "annihilationbladeex:model/annihilation_blade.png",
+    "summon_sword_color": 11141375
+  }
 }

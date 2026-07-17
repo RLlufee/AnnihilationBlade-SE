@@ -1,8 +1,11 @@
 {
   "name": "annihilationbladeex:blood_prison",
+  "creativeGroup": "annihilationbladeex:slashblade_tab",
   "enchantments": [
     { "id": "minecraft:unbreaking", "lvl": 10 },
-    { "id": "minecraft:mending", "lvl": 10 }
+    { "id": "minecraft:mending", "lvl": 10 },
+    { "id": "minecraft:power", "lvl": 10 },
+    { "id": "minecraft:sharpness", "lvl": 10 }
   ],
   "properties": {
     "attack_base": 16.0,
@@ -11,18 +14,18 @@
     "special_effects": [
       "annihilationbladeex:blood_leech",
       "annihilationbladeex:spirit_shield",
-      "annihilationbladeex:phantom_mark"
+      "annihilationbladeex:phantom_mark",
+      "slashblade:wither_edge"
     ],
+    "unbreakable": true,
     "sword_type": [
       "bewitched"
-    ],
-    "unbreakable": true
+    ]
   },
   "render": {
     "carry_type": "ninja",
     "model": "annihilationbladeex:model/blood_prison.obj",
     "texture": "annihilationbladeex:model/blood_prison.png",
     "summon_sword_color": 16711680
-  },
-  "creativeGroup": "annihilationbladeex:slashblade_tab"
+  }
 }

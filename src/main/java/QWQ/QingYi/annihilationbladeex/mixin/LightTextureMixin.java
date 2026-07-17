@@ -1,6 +1,6 @@
 package QWQ.QingYi.annihilationbladeex.mixin;
 
-import QWQ.QingYi.annihilationbladeex.client.ClientBladeVision;
+import QWQ.QingYi.annihilationbladeex.annihilation_blade.client.ClientBladeVision;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.Holder;

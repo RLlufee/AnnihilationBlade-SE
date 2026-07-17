@@ -1,5 +1,6 @@
 package QWQ.QingYi.annihilationbladeex;
 
+import QWQ.QingYi.annihilationbladeex.registry.ModItems;
 import mods.flammpfeil.slashblade.client.renderer.SlashBladeTEISR;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import net.minecraft.client.Minecraft;

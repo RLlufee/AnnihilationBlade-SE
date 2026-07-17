@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/"
 
 [[mods]]
 modId="annihilationblade"
-version="2.2.5"
+version="${mod_version}"
 displayName="Annihilation Blade · Terminus"
 authors="青衣_璃"
 description='''
@@ -14,8 +14,8 @@ description='''
 §d
 Features:
 - Spatial Fracture SA
-- Severed Space / World Rift / Terminus Echo SE
-- Absolute execution, absolute aegis, void flight
+- Severed Space / World Rift / Causality Collapse / Starless Judgement / Phantom Judgement / Abyssal Decree SE
+- Absolute execution, absolute aegis, void flight, blade-bound gamma fullbright
 '''
 logoFile="icon.png"
 
@@ -40,6 +40,13 @@ versionRange="[0.0.1,)"
 ordering="NONE"
 side="BOTH"
 
+[[dependencies.annihilationblade]]
+modId="jei_slashblade"
+mandatory=false
+versionRange="[0.0.1,)"
+ordering="AFTER"
+side="CLIENT"
+
 [[mixins]]
     type = "FML"
-    config = "annihilationblade.mixins.json"
+    config = "annihilationbladeex.mixins.json"
